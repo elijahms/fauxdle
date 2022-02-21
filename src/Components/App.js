@@ -39,8 +39,8 @@ function App() {
     localStorage.setItem("guess", JSON.stringify(guess));
     localStorage.setItem("boxes", JSON.stringify(boxes));
     localStorage.setItem("word", JSON.stringify(word));
-    localStorage.setItem('currentRow', JSON.stringify(currentRow))
-    localStorage.setItem('notInWord', JSON.stringify(notInWord))
+    localStorage.setItem("currentRow", JSON.stringify(currentRow));
+    localStorage.setItem("notInWord", JSON.stringify(notInWord));
   });
 
   const handleClose = (event, reason) => {
@@ -64,16 +64,16 @@ function App() {
       });
       console.log(cookies.word);
     } else {
-      let savedGuess = localStorage.getItem('guess')
-      let savedBoxes = localStorage.getItem('boxes')
-      let savedWord = localStorage.getItem('word')
-      let savedCurrentRow = localStorage.getItem('currentRow')
-      let savedNotInWord = localStorage.getItem('notInWord')
-      setGuess(JSON.parse(savedGuess))
-      setBoxes(JSON.parse(savedBoxes))
-      setWord(JSON.parse(savedWord))
-      setNotInWord(JSON.parse(savedNotInWord))
-      setCurrentRow(JSON.parse(savedCurrentRow))
+      let savedGuess = localStorage.getItem("guess");
+      let savedBoxes = localStorage.getItem("boxes");
+      let savedWord = localStorage.getItem("word");
+      let savedCurrentRow = localStorage.getItem("currentRow");
+      let savedNotInWord = localStorage.getItem("notInWord");
+      setGuess(JSON.parse(savedGuess));
+      setBoxes(JSON.parse(savedBoxes));
+      setWord(JSON.parse(savedWord));
+      setNotInWord(JSON.parse(savedNotInWord));
+      setCurrentRow(JSON.parse(savedCurrentRow));
     }
     setAnswer(cookies.word);
   }, []);

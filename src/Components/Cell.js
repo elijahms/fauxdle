@@ -32,7 +32,7 @@ const Cell = ({ word, boxes, currentRow, row, placement, guess }) => {
           color: "gray",
         }}
       >
-        <Typography variant="h4" align='center' justify='center'>
+        <Typography variant="h4" align="center" justify="center">
           {guess ? guess.charAt(placement) : ""}
         </Typography>
       </Box>
