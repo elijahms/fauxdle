@@ -42,12 +42,6 @@ function Content() {
       localStorage.setItem("word", JSON.stringify(word));
       localStorage.setItem("currentRow", JSON.stringify(currentRow));
       localStorage.setItem("notInWord", JSON.stringify(notInWord));
-    } else if (word === "" || currentRow === 0) {
-      localStorage.setItem("guess", JSON.stringify([]));
-      localStorage.setItem("boxes", JSON.stringify([]));
-      localStorage.setItem("word", JSON.stringify(""));
-      localStorage.setItem("currentRow", JSON.stringify(0));
-      localStorage.setItem("notInWord", JSON.stringify([]));
     }
   }, [word, currentRow]);
 
@@ -78,6 +72,11 @@ function Content() {
         sameSite: "strict",
       });
       setAnswer(syncedAnswer);
+      localStorage.setItem("guess", JSON.stringify([]));
+      localStorage.setItem("boxes", JSON.stringify([]));
+      localStorage.setItem("word", JSON.stringify(""));
+      localStorage.setItem("currentRow", JSON.stringify(0));
+      localStorage.setItem("notInWord", JSON.stringify([]));
     } else {
       setAnswer(cookies.word);
       let savedGuess = localStorage.getItem("guess");
