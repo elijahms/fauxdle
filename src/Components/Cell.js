@@ -7,12 +7,12 @@ const Cell = ({ word, boxes, currentRow, row, placement, guess }) => {
     return (
       <Box
         sx={{
-          backgroundColor: "#B2BEB5",
+          // backgroundColor: "#B2BEB5",
           border: "2px solid #B2BEB5",
           fontSize: "2rem",
           width: "60px",
-          height: "60px",
-          color: "black",
+          height: "63px",
+          color: "white",
         }}
       >
         <Typography variant="h3" align="center" justify="center">
@@ -24,11 +24,11 @@ const Cell = ({ word, boxes, currentRow, row, placement, guess }) => {
     return (
       <Box
         sx={{
-          backgroundColor: `${boxes ? boxes[placement] : "#B2BEB5"}`,
+          backgroundColor: `${boxes ? boxes[placement] : ""}`,
           border: `2px solid #B2BEB5`,
           fontSize: "2rem",
           width: "60px",
-          height: "60px",
+          height: "63px",
           color: "white",
         }}
       >
