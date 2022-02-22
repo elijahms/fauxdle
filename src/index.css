@@ -28,11 +28,11 @@ code {
   #keyboard-box {
     position: absolute;
     bottom: 1vh;
-    width: 98vw;
-    left: 1vw;
-    min-height: 18vh;
+    width: 96vw;
+    left: 2vw;
+    min-height: 24vh;
   }
   .keyboard-row {
-    min-height: 6vh;
+    min-height: 8vh;
   }
 }

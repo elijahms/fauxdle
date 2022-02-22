@@ -32,13 +32,14 @@ function App() {
   //   word: "",
   // });
 
-
   useEffect(() => {
-    localStorage.setItem("guess", JSON.stringify(guess));
-    localStorage.setItem("boxes", JSON.stringify(boxes));
-    localStorage.setItem("word", JSON.stringify(word));
-    localStorage.setItem("currentRow", JSON.stringify(currentRow));
-    localStorage.setItem("notInWord", JSON.stringify(notInWord));
+    if (word !== "") {
+      localStorage.setItem("guess", JSON.stringify(guess));
+      localStorage.setItem("boxes", JSON.stringify(boxes));
+      localStorage.setItem("word", JSON.stringify(word));
+      localStorage.setItem("currentRow", JSON.stringify(currentRow));
+      localStorage.setItem("notInWord", JSON.stringify(notInWord));
+    }
   }, [word]);
 
   const handleClose = (event, reason) => {
@@ -61,11 +62,8 @@ function App() {
         sameSite: "strict",
       });
       setAnswer(todaysAnswer);
-      console.log(todaysAnswer, expiration);
-      console.log(cookies.word);
     } else {
       setAnswer(cookies.word);
-      console.log(cookies.word);
       let savedGuess = localStorage.getItem("guess");
       let savedBoxes = localStorage.getItem("boxes");
       let savedWord = localStorage.getItem("word");
@@ -148,31 +146,35 @@ function App() {
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
-  const theme = createTheme({
-    palette: {
-      type: "light",
-      mode: prefersDarkMode ? "dark" : "light",
-      primary: {
-        main: "#098a5a",
+  const theme = createTheme(
+    {
+      palette: {
+        type: "light",
+        mode: prefersDarkMode ? "dark" : "light",
+        primary: {
+          main: "#098a5a",
+        },
+        secondary: {
+          main: "#7558cc",
+        },
+        background: {
+          default: "#7558cc",
+        },
       },
-      secondary: {
-        main: "#7558cc",
+
+      typography: {
+        fontFamily: "Raleway, Arial",
       },
-      background: {
-        default: "#f7f5ee",
-      },
-    },
-    typography: {
-      fontFamily: "Raleway, Arial",
-    },
-    components: {
-      MuiButton: {
-        styleOverrides: {
-          root: { minWidth: 0 },
+      components: {
+        MuiButton: {
+          styleOverrides: {
+            root: { minWidth: 0 },
+          },
         },
       },
     },
-  });
+    [prefersDarkMode]
+  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -190,7 +192,7 @@ function App() {
             WOOOOOORDLE
           </Typography>
         </Box>
-        <Box sx={{ mb: 3, p: 2 }}>
+        <Box sx={{ mb: 3, pt: 2, pb: 2 }}>
           {[...Array(6)].map((stack, s) => {
             return (
               <Stack

@@ -14,6 +14,7 @@ const KeyBoard = ({ Enterword, notInWord }) => {
         justifyContent="space-between"
         alignItems="strech"
         className="keyboard-row"
+        sx={{ mb: 0.5 }}
       >
         {firstrow.map((l, i) => {
           return (
@@ -31,6 +32,7 @@ const KeyBoard = ({ Enterword, notInWord }) => {
         justifyContent="space-between"
         alignItems="strech"
         className="keyboard-row"
+        sx={{ mb: 0.5, width: '92%', ml: '4%' }}
       >
         {secondrow.map((l, i) => {
           return (
