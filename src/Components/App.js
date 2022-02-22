@@ -9,6 +9,9 @@ import Snackbar from "@mui/material/Snackbar";
 import { WORDS } from "../Constants/wordlist";
 import { useCookies } from "react-cookie";
 import { useBeforeunload } from "react-beforeunload";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import CssBaseline from "@mui/material/CssBaseline";
 
 function App() {
   const [cookies, setCookie] = useCookies(["word"]);
@@ -30,17 +33,9 @@ function App() {
   //   word: "",
   // });
 
-  // window.addEventListener("beforeunload", function (e) {
-  //   e.preventDefault();
-  //   localStorage.setItem("guess", JSON.stringify(guess));
-  //   localStorage.setItem("boxes", JSON.stringify(boxes));
-  //   localStorage.setItem("word", JSON.stringify(word));
-  //   localStorage.setItem("currentRow", JSON.stringify(currentRow));
-  //   localStorage.setItem("notInWord", JSON.stringify(notInWord));
-  // });
 
   useBeforeunload((e) => {
-    e.preventDefault()
+    // e.preventDefault()
     localStorage.setItem("guess", JSON.stringify(guess));
     localStorage.setItem("boxes", JSON.stringify(boxes));
     localStorage.setItem("word", JSON.stringify(word));
@@ -64,8 +59,8 @@ function App() {
       setCookie("word", todaysAnswer, {
         path: "/",
         expires: expiration,
-        // secure: true,
-        // sameSite: "strict",
+        secure: true,
+        sameSite: "strict",
       });
       setAnswer(todaysAnswer);
       console.log(todaysAnswer, expiration);
@@ -153,58 +148,80 @@ function App() {
     }
   };
 
+    const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+
+    const theme = createTheme({
+      palette: {
+        type: "light",
+        mode: prefersDarkMode ? "dark" : "light",
+        primary: {
+          main: "#098a5a",
+        },
+        secondary: {
+          main: "#7558cc",
+        },
+        background: {
+          default: "#f7f5ee",
+        },
+      },
+      typography: {
+        fontFamily: "Raleway, Arial",
+      },
+    });
+
   return (
-    <Container
-      maxWidth="md"
-      component="main"
-      sx={{
-        marginTop: "8vh",
-        marginBottom: 3,
-        display: "column",
-      }}
-    >
-      <Box sx={{ display: "flex", mb: 3 }}>
-        <Typography sx={{ margin: "auto" }} variant="h4">
-          WOOOOOORDLE
-        </Typography>
-      </Box>
-      <Box sx={{ mb: 3 }}>
-        {[...Array(6)].map((stack, s) => {
-          return (
-            <Stack
-              sx={{ mb: 0.5, justifyContent: "center" }}
-              key={s}
-              direction="row"
-              spacing={1}
-            >
-              {[...Array(5)].map((cell, c) => {
-                let row = Math.floor((c + 5 * s) / 5);
-                return (
-                  <Cell
-                    key={c}
-                    row={row}
-                    guess={guess[row]}
-                    placement={c}
-                    currentRow={currentRow}
-                    word={word}
-                    boxes={boxes[row]}
-                  />
-                );
-              })}
-            </Stack>
-          );
-        })}
-      </Box>
-      <Box sx={{ display: "flex" }}>
-        {!wonGame && <KeyBoard Enterword={Enterword} notInWord={notInWord} />}
-      </Box>
-      <Snackbar
-        open={openSnackBar}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        message={snackMessage}
-      />
-    </Container>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+
+      <Container
+        maxWidth="sm"
+        sx={{
+          marginBottom: 2,
+          border: "2px solid blue",
+          height: '100vh'
+        }}
+      >
+        <Box sx={{ display: "flex", mb: 2, mt: 1 }}>
+          <Typography sx={{ margin: "auto" }} variant="h4">
+            WOOOOOORDLE
+          </Typography>
+        </Box>
+        <Box sx={{ mb: 3, border: '2px solid green', p: 2 }}>
+          {[...Array(6)].map((stack, s) => {
+            return (
+              <Stack
+                sx={{ mb: 0.5, justifyContent: "center" }}
+                key={s}
+                direction="row"
+                spacing={1}
+              >
+                {[...Array(5)].map((cell, c) => {
+                  let row = Math.floor((c + 5 * s) / 5);
+                  return (
+                    <Cell
+                      key={c}
+                      row={row}
+                      guess={guess[row]}
+                      placement={c}
+                      currentRow={currentRow}
+                      word={word}
+                      boxes={boxes[row]}
+                    />
+                  );
+                })}
+              </Stack>
+            );
+          })}
+        </Box>
+          {!wonGame && <KeyBoard Enterword={Enterword} notInWord={notInWord} />}
+        <Snackbar
+          open={openSnackBar}
+          autoHideDuration={6000}
+          onClose={handleClose}
+          message={snackMessage}
+        />
+      </Container>
+    </ThemeProvider>
   );
 }
 

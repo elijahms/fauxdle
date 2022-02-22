@@ -8,8 +8,8 @@ const KeyBoard = ({ Enterword, notInWord }) => {
   const thirdrow = ["ENTER", "z", "x", "c", "v", "b", "n", "m", "DELETE"];
 
   return (
-    <Box sx={{ mt: 5, margin: "auto" }}>
-      <Stack direction="row" justifyContent="center" alignItems="center">
+    <Box sx={{ border: '2px solid red', position: 'absolute', bottom: '30px', left: '26.5%'  }}>
+      <Stack direction="row" justifyContent="center" alignItems="center" sx={{maxWidth: '100%'}}>
         {firstrow.map((l, i) => {
           return (
             <Key
