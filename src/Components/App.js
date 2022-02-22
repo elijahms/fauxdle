@@ -10,7 +10,6 @@ import { WORDS } from "../Constants/wordlist";
 import { useCookies } from "react-cookie";
 import { useBeforeunload } from "react-beforeunload";
 
-
 function App() {
   const [cookies, setCookie] = useCookies(["word"]);
   const [word, setWord] = useState("");
@@ -40,14 +39,14 @@ function App() {
   //   localStorage.setItem("notInWord", JSON.stringify(notInWord));
   // });
 
-  // useBeforeunload((e) => {
-  //   e.preventDefault()
-  //   localStorage.setItem("guess", JSON.stringify(guess));
-  //   localStorage.setItem("boxes", JSON.stringify(boxes));
-  //   localStorage.setItem("word", JSON.stringify(word));
-  //   localStorage.setItem("currentRow", JSON.stringify(currentRow));
-  //   localStorage.setItem("notInWord", JSON.stringify(notInWord));
-  // })
+  useBeforeunload((e) => {
+    e.preventDefault()
+    localStorage.setItem("guess", JSON.stringify(guess));
+    localStorage.setItem("boxes", JSON.stringify(boxes));
+    localStorage.setItem("word", JSON.stringify(word));
+    localStorage.setItem("currentRow", JSON.stringify(currentRow));
+    localStorage.setItem("notInWord", JSON.stringify(notInWord));
+  })
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -61,26 +60,30 @@ function App() {
       localStorage.clear();
       let expiration = new Date();
       expiration.setHours(23, 59, 59, 999);
-      setCookie("word", WORDS[Math.floor(Math.random() * WORDS.length)], {
+      let todaysAnswer = WORDS[Math.floor(Math.random() * WORDS.length)];
+      setCookie("word", todaysAnswer, {
         path: "/",
         expires: expiration,
-        secure: true,
-        sameSite: "strict",
+        // secure: true,
+        // sameSite: "strict",
       });
+      setAnswer(todaysAnswer);
+      console.log(todaysAnswer, expiration);
       console.log(cookies.word);
     } else {
-      // let savedGuess = localStorage.getItem("guess");
-      // let savedBoxes = localStorage.getItem("boxes");
-      // let savedWord = localStorage.getItem("word");
-      // let savedCurrentRow = localStorage.getItem("currentRow");
-      // let savedNotInWord = localStorage.getItem("notInWord");
-      // setGuess(JSON.parse(savedGuess));
-      // setBoxes(JSON.parse(savedBoxes));
-      // setWord(JSON.parse(savedWord));
-      // setNotInWord(JSON.parse(savedNotInWord));
-      // setCurrentRow(JSON.parse(savedCurrentRow));
+      setAnswer(cookies.word);
+      console.log(cookies.word);
+      let savedGuess = localStorage.getItem("guess");
+      let savedBoxes = localStorage.getItem("boxes");
+      let savedWord = localStorage.getItem("word");
+      let savedCurrentRow = localStorage.getItem("currentRow");
+      let savedNotInWord = localStorage.getItem("notInWord");
+      setGuess(JSON.parse(savedGuess));
+      setBoxes(JSON.parse(savedBoxes));
+      setWord(JSON.parse(savedWord));
+      setNotInWord(JSON.parse(savedNotInWord));
+      setCurrentRow(JSON.parse(savedCurrentRow));
     }
-    setAnswer(cookies.word);
   }, []);
 
   function Enterword(e) {
