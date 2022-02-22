@@ -8,7 +8,6 @@ import Stack from "@mui/material/Stack";
 import Snackbar from "@mui/material/Snackbar";
 import { WORDS } from "../Constants/wordlist";
 import { useCookies } from "react-cookie";
-import { useBeforeunload } from "react-beforeunload";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -33,14 +32,14 @@ function App() {
   //   word: "",
   // });
 
-  useBeforeunload((e) => {
-    // e.preventDefault()
+
+  useEffect(() => {
     localStorage.setItem("guess", JSON.stringify(guess));
     localStorage.setItem("boxes", JSON.stringify(boxes));
     localStorage.setItem("word", JSON.stringify(word));
     localStorage.setItem("currentRow", JSON.stringify(currentRow));
     localStorage.setItem("notInWord", JSON.stringify(notInWord));
-  });
+  }, [word]);
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
