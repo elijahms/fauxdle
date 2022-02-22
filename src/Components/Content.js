@@ -182,12 +182,12 @@ function Content() {
         height: "100vh",
       }}
     >
-      <Box sx={{ display: "flex", mb: 1, mt: 1 }}>
+      <Box sx={{ display: "flex", mt: 1 }}>
         <Typography sx={{ margin: "auto" }} variant="h4">
           FAUXDLE
         </Typography>
       </Box>
-      <Box sx={{ pt: 2, pb: 2 }}>
+      <Box sx={{ pt: 1, pb: 1 }}>
         {[...Array(6)].map((stack, s) => {
           return (
             <Stack
