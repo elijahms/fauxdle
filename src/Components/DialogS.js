@@ -6,15 +6,26 @@ import { useState } from "react";
 import { Button } from "@mui/material";
 
 const DialogS = (props) => {
-  const { dialogTitle, dialogContent, handleClickOpenDialog, openDialog, handleCloseDialog, winningText } = props;
+  const {
+    dialogTitle,
+    dialogContent,
+    handleClickOpenDialog,
+    openDialog,
+    handleCloseDialog,
+    winningText,
+    wonGame
+  } = props;
 
   const shareWin = () => {
     if (navigator.share) {
-      navigator.share({title: 'Fauxdle', text: `Fauxdle 001' \n ${winningText}`})
+      navigator.share({
+        title: "Fauxdle",
+        text: `Fauxdle 001 \n ${winningText}`,
+      });
     } else {
-      console.log('not working')
+      console.log("not working");
     }
-  }
+  };
 
   return (
     <Dialog open={openDialog} onClose={handleCloseDialog}>
@@ -22,9 +33,7 @@ const DialogS = (props) => {
       <DialogContent>
         <DialogContentText>{dialogContent}</DialogContentText>
       </DialogContent>
-      <Button onClick={shareWin}>
-        Share
-      </Button>
+      {wonGame && <Button onClick={shareWin}>Share</Button>}
     </Dialog>
   );
 };

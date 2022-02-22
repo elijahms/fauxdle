@@ -9,6 +9,9 @@ import Snackbar from "@mui/material/Snackbar";
 import { WORDS } from "../Constants/wordlist";
 import { useCookies } from "react-cookie";
 import Dialog from "./DialogS";
+import QueryStatsIcon from "@mui/icons-material/QueryStats";
+import HelpOutlineRoundedIcon from "@mui/icons-material/HelpOutlineRounded";
+import { ConstructionOutlined } from "@mui/icons-material";
 
 function Content() {
   const [cookies, setCookie] = useCookies(["word"]);
@@ -33,15 +36,21 @@ function Content() {
   //   word: "",
   // });
 
+  localStorage.setItem("guess", JSON.stringify([]));
+  localStorage.setItem("boxes", JSON.stringify([]));
+  localStorage.setItem("word", JSON.stringify(""));
+  localStorage.setItem("currentRow", JSON.stringify(0));
+  localStorage.setItem("notInWord", JSON.stringify([]));
+
   useEffect(() => {
-    if (word !== "") {
+    if (word !== "" || currentRow !== 0) {
       localStorage.setItem("guess", JSON.stringify(guess));
       localStorage.setItem("boxes", JSON.stringify(boxes));
       localStorage.setItem("word", JSON.stringify(word));
       localStorage.setItem("currentRow", JSON.stringify(currentRow));
       localStorage.setItem("notInWord", JSON.stringify(notInWord));
     }
-  }, [word]);
+  }, [word, currentRow]);
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -49,20 +58,28 @@ function Content() {
     }
     setOpenSnackBar(false);
   };
+  const dayOfYear = (date) =>
+    Math.floor(
+      (date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24
+    );
 
   useEffect(() => {
     if (!cookies.word) {
       localStorage.clear();
       let expiration = new Date();
       expiration.setHours(23, 59, 59, 999);
-      let todaysAnswer = WORDS[Math.floor(Math.random() * WORDS.length)];
-      setCookie("word", todaysAnswer, {
+      let syncedAnswer = dayOfYear(new Date());
+      syncedAnswer =
+        WORDS[Math.floor(((syncedAnswer + 8) / 365) * WORDS.length)];
+      console.log(syncedAnswer);
+      //let todaysAnswer = WORDS[Math.floor(Math.random() * WORDS.length)];
+      setCookie("word", syncedAnswer, {
         path: "/",
         expires: expiration,
         secure: true,
         sameSite: "strict",
       });
-      setAnswer(todaysAnswer);
+      setAnswer(syncedAnswer);
     } else {
       setAnswer(cookies.word);
       let savedGuess = localStorage.getItem("guess");
@@ -119,17 +136,26 @@ function Content() {
         } else {
           return "⬛";
         }
-      }), "🟩", "🟩", "🟩", "🟩", "🟩"
+      }),
+      "🟩",
+      "🟩",
+      "🟩",
+      "🟩",
+      "🟩",
     ];
     console.log(boxes);
-    shareabletext = shareabletext.flat().map((m, i) => i % 5 === 0 ? "\n" + m : m).join(" ")
-    console.log(shareabletext)
+    shareabletext = shareabletext
+      .flat()
+      .map((m, i) => (i % 5 === 0 ? "\n" + m : m))
+      .join("");
+    console.log(shareabletext);
     setWinningText(shareabletext);
     handleClickOpenDialog();
   };
 
   const gameLost = () => {
     setNotInWord([...notInWord, ["⏎", "⬅"]]);
+    handleClickOpenDialog();
   };
 
   const checkAnswer = () => {
@@ -155,7 +181,7 @@ function Content() {
               return currentBoxes.push("orange");
             }
           } else {
-            return currentBoxes.push("grey"), letnotinword.push(letter);
+            return currentBoxes.push("gray"), letnotinword.push(letter);
           }
         });
         setBoxes([...boxes, currentBoxes]);
@@ -183,11 +209,17 @@ function Content() {
         height: "100vh",
       }}
     >
-      <Box sx={{ display: "flex", mt: 1 }}>
-        <Typography sx={{ margin: "auto" }} variant="h4">
-          FAUXDLE
-        </Typography>
-      </Box>
+      <Stack
+        direction="row"
+        spacing={7}
+        sx={{ mt: 1 }}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <HelpOutlineRoundedIcon />
+        <Typography variant="h4">FAUXDLE</Typography>
+        <QueryStatsIcon />
+      </Stack>
       <Box sx={{ pt: 1, pb: 1 }}>
         {[...Array(6)].map((stack, s) => {
           return (
@@ -229,6 +261,7 @@ function Content() {
         openDialog={openDialog}
         handleCloseDialog={handleCloseDialog}
         winningText={winningText}
+        wonGame={wonGame}
       />
     </Container>
   );

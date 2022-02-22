@@ -7,7 +7,6 @@ const Cell = ({ word, boxes, currentRow, row, placement, guess }) => {
     return (
       <Box
         sx={{
-          // backgroundColor: "#B2BEB5",
           border: "2px solid #B2BEB5",
           fontSize: "2rem",
           width: "60px",
