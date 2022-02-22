@@ -42,6 +42,7 @@ function Content() {
       localStorage.setItem("word", JSON.stringify(word));
       localStorage.setItem("currentRow", JSON.stringify(currentRow));
       localStorage.setItem("notInWord", JSON.stringify(notInWord));
+      localStorage.setItem("gameWon", JSON.stringify(wonGame));
     }
   }, [word, currentRow]);
 
@@ -77,6 +78,7 @@ function Content() {
       localStorage.setItem("word", JSON.stringify(""));
       localStorage.setItem("currentRow", JSON.stringify(0));
       localStorage.setItem("notInWord", JSON.stringify([]));
+      localStorage.setItem("gameWon", "false");
     } else {
       setAnswer(cookies.word);
       let savedGuess = localStorage.getItem("guess");
@@ -89,6 +91,9 @@ function Content() {
       setWord(JSON.parse(savedWord));
       setNotInWord(JSON.parse(savedNotInWord));
       setCurrentRow(JSON.parse(savedCurrentRow));
+      if (localStorage.getItem("gameWon") === "true") {
+        gameWon();
+      }
     }
   }, []);
 
