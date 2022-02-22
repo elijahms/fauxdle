@@ -8,40 +8,46 @@ import Stack from "@mui/material/Stack";
 import Snackbar from "@mui/material/Snackbar";
 import { WORDS } from "../Constants/wordlist";
 import { useCookies } from "react-cookie";
+import { useBeforeunload } from "react-beforeunload";
+
 
 function App() {
-  const [cookies, setCookie] = useCookies(["word", "guesses"]);
-
+  const [cookies, setCookie] = useCookies(["word"]);
   const [word, setWord] = useState("");
   const [guess, setGuess] = useState([]);
   const [boxes, setBoxes] = useState([]);
   const [currentRow, setCurrentRow] = useState(0);
   const [notInWord, setNotInWord] = useState([]);
-
   const [snackMessage, setSnackMessage] = useState("Not in Word List");
   const [openSnackBar, setOpenSnackBar] = useState(false);
-
   const [wonGame, setWonGame] = useState(false);
-
   const [falseWord, setFalseWord] = useState(false);
   const [answer, setAnswer] = useState("");
+  // const [guessObj, setGuessObj] = useState({
+  //   boxes: [],
+  //   guesses: [],
+  //   currentRow: 0,
+  //   notInWord: [],
+  //   word: "",
+  // });
 
-  const [guessObj, setGuessObj] = useState({
-    boxes: [],
-    guesses: [],
-    currentRow: 0,
-    notInWord: [],
-    word: "",
-  });
+  // window.addEventListener("beforeunload", function (e) {
+  //   e.preventDefault();
+  //   localStorage.setItem("guess", JSON.stringify(guess));
+  //   localStorage.setItem("boxes", JSON.stringify(boxes));
+  //   localStorage.setItem("word", JSON.stringify(word));
+  //   localStorage.setItem("currentRow", JSON.stringify(currentRow));
+  //   localStorage.setItem("notInWord", JSON.stringify(notInWord));
+  // });
 
-  window.addEventListener("beforeunload", function (e) {
-    e.preventDefault();
+  useBeforeunload((e) => {
+    e.preventDefault()
     localStorage.setItem("guess", JSON.stringify(guess));
     localStorage.setItem("boxes", JSON.stringify(boxes));
     localStorage.setItem("word", JSON.stringify(word));
     localStorage.setItem("currentRow", JSON.stringify(currentRow));
     localStorage.setItem("notInWord", JSON.stringify(notInWord));
-  });
+  })
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -82,7 +88,7 @@ function App() {
     if (e.target.value === "DELETE") {
       if (word.length > 0) {
         setWord(() => word.slice(0, -1));
-        setGuessObj({ ...guessObj, word: word.slice(0, -1) });
+        //setGuessObj({ ...guessObj, word: word.slice(0, -1) });
       }
     } else if (e.target.value === "ENTER") {
       if (word.length === 5) {
@@ -94,7 +100,7 @@ function App() {
     } else {
       if (word.length <= 4 && word.length >= 0) {
         setWord(() => word + e.target.value);
-        setGuessObj({ ...guessObj, word: word + e.target.value });
+        //setGuessObj({ ...guessObj, word: word + e.target.value });
       }
     }
   }
