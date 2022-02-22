@@ -10,7 +10,7 @@ const DialogS = (props) => {
 
   const shareWin = () => {
     if (navigator.share) {
-      navigator.share({title: 'Fauxdle', text: winningText})
+      navigator.share({title: 'Fauxdle', text: `Fauxdle 001' \n ${winningText}`})
     } else {
       console.log('not working')
     }
