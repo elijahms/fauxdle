@@ -11,7 +11,6 @@ import { useCookies } from "react-cookie";
 import Dialog from "./DialogS";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import HelpOutlineRoundedIcon from "@mui/icons-material/HelpOutlineRounded";
-import { ConstructionOutlined } from "@mui/icons-material";
 
 function Content() {
   const [cookies, setCookie] = useCookies(["word"]);
@@ -36,12 +35,6 @@ function Content() {
   //   word: "",
   // });
 
-  localStorage.setItem("guess", JSON.stringify([]));
-  localStorage.setItem("boxes", JSON.stringify([]));
-  localStorage.setItem("word", JSON.stringify(""));
-  localStorage.setItem("currentRow", JSON.stringify(0));
-  localStorage.setItem("notInWord", JSON.stringify([]));
-
   useEffect(() => {
     if (word !== "" || currentRow !== 0) {
       localStorage.setItem("guess", JSON.stringify(guess));
@@ -49,6 +42,12 @@ function Content() {
       localStorage.setItem("word", JSON.stringify(word));
       localStorage.setItem("currentRow", JSON.stringify(currentRow));
       localStorage.setItem("notInWord", JSON.stringify(notInWord));
+    } else if (word === "" || currentRow === 0) {
+      localStorage.setItem("guess", JSON.stringify([]));
+      localStorage.setItem("boxes", JSON.stringify([]));
+      localStorage.setItem("word", JSON.stringify(""));
+      localStorage.setItem("currentRow", JSON.stringify(0));
+      localStorage.setItem("notInWord", JSON.stringify([]));
     }
   }, [word, currentRow]);
 
@@ -69,8 +68,7 @@ function Content() {
       let expiration = new Date();
       expiration.setHours(23, 59, 59, 999);
       let syncedAnswer = dayOfYear(new Date());
-      syncedAnswer =
-        WORDS[Math.floor(((syncedAnswer + 8) / 365) * WORDS.length)];
+      syncedAnswer = WORDS[Math.floor((syncedAnswer / 365) * WORDS.length)];
       console.log(syncedAnswer);
       //let todaysAnswer = WORDS[Math.floor(Math.random() * WORDS.length)];
       setCookie("word", syncedAnswer, {
