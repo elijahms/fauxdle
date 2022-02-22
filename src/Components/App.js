@@ -33,7 +33,6 @@ function App() {
   //   word: "",
   // });
 
-
   useBeforeunload((e) => {
     // e.preventDefault()
     localStorage.setItem("guess", JSON.stringify(guess));
@@ -41,7 +40,7 @@ function App() {
     localStorage.setItem("word", JSON.stringify(word));
     localStorage.setItem("currentRow", JSON.stringify(currentRow));
     localStorage.setItem("notInWord", JSON.stringify(notInWord));
-  })
+  });
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -82,12 +81,12 @@ function App() {
   }, []);
 
   function Enterword(e) {
-    if (e.target.value === "DELETE") {
+    if (e.target.value === "⌫") {
       if (word.length > 0) {
         setWord(() => word.slice(0, -1));
         //setGuessObj({ ...guessObj, word: word.slice(0, -1) });
       }
-    } else if (e.target.value === "ENTER") {
+    } else if (e.target.value === "⏎") {
       if (word.length === 5) {
         checkAnswer();
       } else {
@@ -148,26 +147,33 @@ function App() {
     }
   };
 
-    const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
-    const theme = createTheme({
-      palette: {
-        type: "light",
-        mode: prefersDarkMode ? "dark" : "light",
-        primary: {
-          main: "#098a5a",
-        },
-        secondary: {
-          main: "#7558cc",
-        },
-        background: {
-          default: "#f7f5ee",
+  const theme = createTheme({
+    palette: {
+      type: "light",
+      mode: prefersDarkMode ? "dark" : "light",
+      primary: {
+        main: "#098a5a",
+      },
+      secondary: {
+        main: "#7558cc",
+      },
+      background: {
+        default: "#f7f5ee",
+      },
+    },
+    typography: {
+      fontFamily: "Raleway, Arial",
+    },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: { minWidth: 0 },
         },
       },
-      typography: {
-        fontFamily: "Raleway, Arial",
-      },
-    });
+    },
+  });
 
   return (
     <ThemeProvider theme={theme}>
@@ -177,8 +183,7 @@ function App() {
         maxWidth="sm"
         sx={{
           marginBottom: 2,
-          border: "2px solid blue",
-          height: '100vh'
+          height: "100vh",
         }}
       >
         <Box sx={{ display: "flex", mb: 2, mt: 1 }}>
@@ -186,7 +191,7 @@ function App() {
             WOOOOOORDLE
           </Typography>
         </Box>
-        <Box sx={{ mb: 3, border: '2px solid green', p: 2 }}>
+        <Box sx={{ mb: 3, p: 2 }}>
           {[...Array(6)].map((stack, s) => {
             return (
               <Stack
@@ -213,7 +218,7 @@ function App() {
             );
           })}
         </Box>
-          {!wonGame && <KeyBoard Enterword={Enterword} notInWord={notInWord} />}
+        {!wonGame && <KeyBoard Enterword={Enterword} notInWord={notInWord} />}
         <Snackbar
           open={openSnackBar}
           autoHideDuration={6000}

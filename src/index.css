@@ -16,3 +16,23 @@ code {
   font-family: "Raleway";
   src: local("Raleway"), url(./Fonts/Raleway-ExtraBold.ttf) format("truetype");
 }
+
+#keyboard-box {
+  position: absolute;
+  bottom: 30px;
+  width: 50vw;
+  left: 25vw;
+}
+
+@media only screen and (max-width: 450px) {
+  #keyboard-box {
+    position: absolute;
+    bottom: 1vh;
+    width: 98vw;
+    left: 1vw;
+    min-height: 18vh;
+  }
+  .keyboard-row {
+    min-height: 6vh;
+  }
+}
