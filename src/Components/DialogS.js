@@ -6,11 +6,11 @@ import { useState } from "react";
 import { Button } from "@mui/material";
 
 const DialogS = (props) => {
-  const { dialogTitle, dialogContent, handleClickOpenDialog, openDialog, handleCloseDialog } = props;
+  const { dialogTitle, dialogContent, handleClickOpenDialog, openDialog, handleCloseDialog, winningText } = props;
 
   const shareWin = () => {
     if (navigator.share) {
-      navigator.share({title: 'Fauxdle', text: 'test'})
+      navigator.share({title: 'Fauxdle', text: winningText})
     } else {
       console.log('not working')
     }

@@ -23,6 +23,7 @@ function Content() {
   const [falseWord, setFalseWord] = useState(false);
   const [answer, setAnswer] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const [winningText, setWinningText] = useState("");
 
   // const [guessObj, setGuessObj] = useState({
   //   boxes: [],
@@ -107,7 +108,22 @@ function Content() {
   };
 
   const gameWon = () => {
+    console.log(boxes);
     setWonGame(true);
+    let shareabletext = [
+      boxes.flat().map((c, i) => {
+        if (c === "green") {
+          return "🟩";
+        } else if (c === "orange") {
+          return "🟧";
+        } else {
+          return "⬛";
+        }
+      }), "\n🟩", "🟩", "🟩", "🟩", "🟩"
+    ];
+    console.log(boxes);
+    shareabletext = shareabletext.flat().map((m, i) => i === 5 ? "\n" + m : m).join(" ")
+    setWinningText(shareabletext);
     handleClickOpenDialog();
   };
 
@@ -211,6 +227,7 @@ function Content() {
         handleClickOpenDialog={handleClickOpenDialog}
         openDialog={openDialog}
         handleCloseDialog={handleCloseDialog}
+        winningText={winningText}
       />
     </Container>
   );
