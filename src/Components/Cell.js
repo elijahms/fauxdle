@@ -10,8 +10,8 @@ const Cell = ({ word, boxes, currentRow, row, placement, guess }) => {
           backgroundColor: "#B2BEB5",
           border: "2px solid #B2BEB5",
           fontSize: "2rem",
-          width: "65px",
-          height: "65px",
+          width: "60px",
+          height: "60px",
           color: "black",
         }}
       >
@@ -27,8 +27,8 @@ const Cell = ({ word, boxes, currentRow, row, placement, guess }) => {
           backgroundColor: `${boxes ? boxes[placement] : "#B2BEB5"}`,
           border: `2px solid #B2BEB5`,
           fontSize: "2rem",
-          width: "65px",
-          height: "65px",
+          width: "60px",
+          height: "60px",
           color: "white",
         }}
       >
