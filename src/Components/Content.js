@@ -119,10 +119,11 @@ function Content() {
         } else {
           return "⬛";
         }
-      }), "\n🟩", "🟩", "🟩", "🟩", "🟩"
+      }), "🟩", "🟩", "🟩", "🟩", "🟩"
     ];
     console.log(boxes);
-    shareabletext = shareabletext.flat().map((m, i) => i === 5 ? "\n" + m : m).join(" ")
+    shareabletext = shareabletext.flat().map((m, i) => i % 5 === 0 ? "\n" + m : m).join(" ")
+    console.log(shareabletext)
     setWinningText(shareabletext);
     handleClickOpenDialog();
   };
