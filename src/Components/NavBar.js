@@ -17,7 +17,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const NavBar = ({ stats }) => {
   const helpModal = () => {
     setOpen(true);
-    console.log("h");
   };
   let rowAvg = stats.rowWon.reduce(function (a, b) {
     return a + b;
@@ -28,7 +27,6 @@ const NavBar = ({ stats }) => {
 
   const statsModal = () => {
     setOpen(true);
-    console.log(rowAvg, timeAvg);
   };
 
   const [open, setOpen] = useState(false);
@@ -67,8 +65,8 @@ const NavBar = ({ stats }) => {
             Created by Elijah Silverman <br />
             Games Won: {stats.wins} <br />
             Games Lost: {stats.losses} <br />
-            Average Win Row: {rowAvg / stats.wins} <br />
-            Average Time Playing: {timeAvg / stats.wins} seconds <br />
+            Average Win Row: {Math.floor(rowAvg / stats.wins)} <br />
+            Average Time Playing: {Math.floor(timeAvg / stats.wins)} seconds <br />
             <a href="https://github.com/elijahms/somegame">Github</a>
           </DialogContentText>
         </DialogContent>

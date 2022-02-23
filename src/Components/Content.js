@@ -49,7 +49,7 @@ function Content() {
   }, [word, currentRow, userStats]);
 
   useEffect(() => {
-    if (!cookies.word) {
+    if (!cookies.word || localStorage.getItem('nolimitmode')) {
       localStorage.removeItem(
         "guess",
         "boxes",
@@ -63,7 +63,9 @@ function Content() {
       expiration.setHours(23, 59, 59, 999);
       let syncedAnswer = dayOfYear(new Date());
       syncedAnswer = WORDS[Math.floor((syncedAnswer / 365) * WORDS.length)];
-      console.log(syncedAnswer);
+      if (localStorage.getItem('nolimitmode')) {
+        syncedAnswer = WORDS[Math.floor(Math.random() * WORDS.length)];
+      }
       //let todaysAnswer = WORDS[Math.floor(Math.random() * WORDS.length)];
       setCookie("word", syncedAnswer, {
         path: "/",
@@ -122,7 +124,6 @@ function Content() {
     if (e.target.value === "⬅") {
       if (word.length > 0) {
         setWord(() => word.slice(0, -1));
-        //setGuessObj({ ...guessObj, word: word.slice(0, -1) });
       }
     } else if (e.target.value === "⏎") {
       if (word.length === 5) {
@@ -134,7 +135,6 @@ function Content() {
     } else {
       if (word.length <= 4 && word.length >= 0) {
         setWord(() => word + e.target.value);
-        //setGuessObj({ ...guessObj, word: word + e.target.value });
       }
     }
   };
@@ -219,7 +219,10 @@ function Content() {
   };
 
   const checkAnswer = () => {
-    if (WORDS.includes(word)) {
+    if (guess[0] === "noxxx" && word === "limit") {
+      localStorage.setItem("nolimitmode", "true");
+    }
+    if (WORDS.includes(word) || word === "noxxx") {
       let currentBoxes = [];
       let charNotInWord = [];
       let correctCount = 0;
