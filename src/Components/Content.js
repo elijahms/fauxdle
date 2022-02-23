@@ -26,14 +26,7 @@ function Content() {
   const [dialogContent, setDialogContent] = useState("");
   const [dialogTitle, setDialogTitle] = useState("");
   const [lostGame, setLostGame] = useState(false);
-
-  // const [guessObj, setGuessObj] = useState({
-  //   boxes: [],
-  //   guesses: [],
-  //   currentRow: 0,
-  //   notInWord: [],
-  //   word: "",
-  // });
+  const [cellColor, setCellColor] = useState([]);
 
   useEffect(() => {
     if (word !== "" || currentRow !== 0) {
@@ -43,6 +36,7 @@ function Content() {
       localStorage.setItem("currentRow", JSON.stringify(currentRow));
       localStorage.setItem("notInWord", JSON.stringify(notInWord));
       localStorage.setItem("gameWon", JSON.stringify(wonGame));
+      localStorage.setItem("gameLost", JSON.stringify(lostGame));
     }
   }, [word, currentRow]);
 
@@ -68,6 +62,7 @@ function Content() {
       localStorage.setItem("currentRow", JSON.stringify(0));
       localStorage.setItem("notInWord", JSON.stringify([]));
       localStorage.setItem("gameWon", "false");
+      localStorage.setItem("gameLost", "false");
     } else {
       setAnswer(cookies.word);
       let savedGuess = localStorage.getItem("guess");
@@ -82,6 +77,9 @@ function Content() {
       setCurrentRow(JSON.parse(savedCurrentRow));
       if (localStorage.getItem("gameWon") === "true") {
         gameWon();
+      }
+      if (localStorage.getItem("gameLost") === "true") {
+        gameLost();
       }
     }
   }, []);
@@ -98,7 +96,7 @@ function Content() {
       (date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24
     );
 
-  function Enterword(e) {
+  const enterWord = (e) => {
     if (e.target.value === "⬅") {
       if (word.length > 0) {
         setWord(() => word.slice(0, -1));
@@ -117,7 +115,7 @@ function Content() {
         //setGuessObj({ ...guessObj, word: word + e.target.value });
       }
     }
-  }
+  };
 
   const handleClickOpenDialog = () => {
     setOpenDialog(true);
@@ -151,6 +149,14 @@ function Content() {
     return shareabletext;
   };
 
+  const winOrLose = (currRow, correctCount) => {
+    if (correctCount === 5) {
+      gameWon();
+    } else if (currRow >= 6) {
+      gameLost();
+    }
+  };
+
   const gameWon = () => {
     setWonGame(true);
     setDialogContent("winner winner winner");
@@ -171,73 +177,42 @@ function Content() {
     setOpenSnackBar(true);
   };
 
-  //   const checkAnswer = () => {
-  //     let currentBoxes = [];
-  //     let letnotinword = [];
-  //     let correctCount = 0;
-  //     if (WORDS.includes(word)) {
-  //       setCurrentRow(currentRow + 1);
-  //       setGuess([...guess, word]);
-  //       if (word === answer) {
-  //         word.split("").map(() => currentBoxes.push("green"));
-  //         setBoxes([...boxes, currentBoxes]);
-  //         setWord("");
-  //         gameWon();
-  //       } else {
-  //         word.split("").map((letter, index) => {
-  //           if (answer.includes(letter)) {
-  //             if (answer[index] === letter) {
-  //               correctCount++;
-  //               return currentBoxes.push("green");
-  //             } else {
-  //               return currentBoxes.push("orange");
-  //             }
-  //           } else {
-  //             return currentBoxes.push("gray"), letnotinword.push(letter);
-  //           }
-  //         });
-  //         setBoxes([...boxes, currentBoxes]);
-  //         setNotInWord([...notInWord, letnotinword]);
-  //         let checkrow = parseInt(currentRow) + 1;
-  //         if (checkrow >= 6) {
-  //           gameLost();
-  //         } else {
-  //           setWord("");
-  //         }
-  //       }
-  //     } else {
-  //       setSnackMessage("Not in Word List");
-  //       setOpenSnackBar(true);
-  //     }
-  //   };
-
   const checkAnswer = () => {
     if (WORDS.includes(word)) {
       let currentBoxes = [];
       let charNotInWord = [];
       let correctCount = 0;
-      word.split("").map((letter, index) => {
+      let currCellColor = [];
+      let currRow = currentRow + 1;
+      word.split("").map((letter, i) => {
         if (answer.includes(letter)) {
-          if (answer[index] === letter) {
+          if (answer[i] === letter) {
             correctCount++;
-            return currentBoxes.push("green");
+            currentBoxes.push("green");
+            currCellColor.push([letter, "green"]);
           } else {
-            return currentBoxes.push("orange");
+            currentBoxes.push("orange");
+            currCellColor.push([letter, "orange"]);
           }
         } else {
-          return currentBoxes.push("gray"), charNotInWord.push(letter);
+          currentBoxes.push("gray");
+          charNotInWord.push(letter);
         }
       });
-      setCurrentRow(currentRow + 1);
+      console.log(currCellColor);
+      setCurrentRow(currRow);
+      setCellColor([...cellColor, currCellColor]);
       setGuess([...guess, word]);
       setBoxes([...boxes, currentBoxes]);
       setNotInWord([...notInWord, charNotInWord]);
-      correctCount === 5 && gameWon();
-      currentRow + 1 >= 6 ? gameLost() : setWord("");
+      winOrLose(currRow, correctCount);
+      setWord("");
     } else {
       invalidWord();
     }
   };
+
+  console.log(cellColor);
 
   function CellLayout() {
     return [...Array(6)].map((stack, s) => {
@@ -273,10 +248,11 @@ function Content() {
       <NavBar />
       <CellLayout />
       <KeyBoard
-        Enterword={Enterword}
+        enterWord={enterWord}
         notInWord={notInWord}
         wonGame={wonGame}
         lostGame={lostGame}
+        cellColor={cellColor}
       />
       <Snackbar
         open={openSnackBar}

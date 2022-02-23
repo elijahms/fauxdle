@@ -12,7 +12,7 @@ function App() {
         type: "light",
         mode: prefersDarkMode ? "dark" : "light",
         primary: {
-          main: "#098a5a",
+          main: "#D1CDDA",
         },
         secondary: {
           main: "#7558cc",

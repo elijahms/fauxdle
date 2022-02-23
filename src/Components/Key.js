@@ -1,11 +1,26 @@
 import Button from "@mui/material/Button";
 
-const Key = ({ letter, Enterword, notInWord, wonGame, lostGame }) => {
+const Key = ({
+  letter,
+  enterWord,
+  notInWord,
+  wonGame,
+  lostGame,
+  cellColor,
+}) => {
   const keyColor = () => {
     if (letter === "⏎" || letter === "⬅") {
-      return "black";
+      return "green";
     } else if (notInWord.flat().includes(letter)) {
-      return "gray";
+      return "#404744";
+    } else {
+      let cellArr = [...cellColor].flat().filter((s) => s[0] === letter);
+      if (cellArr.length > 0) {
+        console.log(cellArr.flat()[cellArr.flat().length - 1]);
+        return cellArr.flat()[cellArr.flat().length - 1];
+      } else {
+        return "";
+      }
     }
   };
 
@@ -18,8 +33,11 @@ const Key = ({ letter, Enterword, notInWord, wonGame, lostGame }) => {
         lr: 0.2,
         width: "100%",
         backgroundColor: `${keyColor()}`,
+        "&:hover": {
+          backgroundColor: `${keyColor()}`,
+        },
       }}
-      onClick={Enterword}
+      onClick={enterWord}
       value={letter}
     >
       {letter}
