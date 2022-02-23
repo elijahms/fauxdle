@@ -142,10 +142,15 @@ function Content() {
       "🟩",
       "🟩",
     ];
-    shareabletext = shareabletext
-      .flat()
-      .map((m, i) => (i % 5 === 0 ? "\n" + m : m))
-      .join("");
+    let firstFauxdle = new Date("02/22/2022");
+    let today = new Date();
+    let daysFromStart = Math.floor((today - firstFauxdle) / (1000 * 3600 * 24));
+    shareabletext =
+      `Fauxdle #${daysFromStart} | ${currentRow + 1}/6 \n` +
+      shareabletext
+        .flat()
+        .map((m, i) => (i % 5 === 0 ? "\n" + m : m))
+        .join("");
     return shareabletext;
   };
 
@@ -159,7 +164,7 @@ function Content() {
 
   const gameWon = () => {
     setWonGame(true);
-    setDialogContent("winner winner winner");
+    setDialogContent("Whoohoo you got it! Keep it up!");
     setDialogTitle("You Won!");
     setWinningText(shareWin());
     handleClickOpenDialog();
@@ -167,8 +172,8 @@ function Content() {
 
   const gameLost = () => {
     setLostGame(true);
-    setDialogContent("loser loser loser");
-    setDialogTitle("You Lost!");
+    setDialogContent("Better luck next time...");
+    setDialogTitle("Tomorrows the charm!");
     handleClickOpenDialog();
   };
 
@@ -199,7 +204,6 @@ function Content() {
           charNotInWord.push(letter);
         }
       });
-      console.log(currCellColor);
       setCurrentRow(currRow);
       setCellColor([...cellColor, currCellColor]);
       setGuess([...guess, word]);
@@ -211,8 +215,6 @@ function Content() {
       invalidWord();
     }
   };
-
-  console.log(cellColor);
 
   function CellLayout() {
     return [...Array(6)].map((stack, s) => {
