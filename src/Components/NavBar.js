@@ -4,33 +4,34 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import IconButton from "@mui/material/IconButton";
 import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const NavBar = () => {
+const NavBar = ({ stats }) => {
   const helpModal = () => {
     setOpen(true);
     console.log("h");
   };
+  let rowAvg = stats.rowWon.reduce(function (a, b) {
+    return a + b;
+  }, 0);
+  let timeAvg = stats.avgDuration.reduce(function (a, b) {
+    return a + b;
+  }, 0);
 
   const statsModal = () => {
     setOpen(true);
-    console.log("h");
+    console.log(rowAvg, timeAvg);
   };
 
   const [open, setOpen] = useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
   const handleClose = () => {
     setOpen(false);
@@ -63,8 +64,11 @@ const NavBar = () => {
         <DialogTitle>Working on this section...</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Created by Elijah Silverman{" "}
-            <br />
+            Created by Elijah Silverman <br />
+            Games Won: {stats.wins} <br />
+            Games Lost: {stats.losses} <br />
+            Average Win Row: {rowAvg / stats.wins} <br />
+            Average Time Playing: {timeAvg / stats.wins} seconds <br />
             <a href="https://github.com/elijahms/somegame">Github</a>
           </DialogContentText>
         </DialogContent>

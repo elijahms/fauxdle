@@ -1,4 +1,3 @@
-import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import { useState, useEffect } from "react";
 import KeyBoard from "./KeyBoard";
@@ -27,6 +26,14 @@ function Content() {
   const [dialogTitle, setDialogTitle] = useState("");
   const [lostGame, setLostGame] = useState(false);
   const [cellColor, setCellColor] = useState([]);
+  const [userStats, setUserStats] = useState({
+    wins: 0,
+    losses: 0,
+    rowWon: [],
+    avgDuration: [],
+    gamesPlayed: 0,
+  });
+  let gameStart = new Date();
 
   useEffect(() => {
     if (word !== "" || currentRow !== 0) {
@@ -37,12 +44,21 @@ function Content() {
       localStorage.setItem("notInWord", JSON.stringify(notInWord));
       localStorage.setItem("gameWon", JSON.stringify(wonGame));
       localStorage.setItem("gameLost", JSON.stringify(lostGame));
+      localStorage.setItem("stats", JSON.stringify(userStats));
     }
-  }, [word, currentRow]);
+  }, [word, currentRow, userStats]);
 
   useEffect(() => {
     if (!cookies.word) {
-      localStorage.clear();
+      localStorage.removeItem(
+        "guess",
+        "boxes",
+        "word",
+        "currentRow",
+        "notInWord",
+        "gameWon",
+        "gameLost"
+      );
       let expiration = new Date();
       expiration.setHours(23, 59, 59, 999);
       let syncedAnswer = dayOfYear(new Date());
@@ -81,6 +97,12 @@ function Content() {
       if (localStorage.getItem("gameLost") === "true") {
         gameLost();
       }
+    }
+    if (localStorage.getItem("stats")) {
+      let stats = localStorage.getItem("stats");
+      setUserStats(JSON.parse(stats));
+    } else {
+      localStorage.setItem("stats", JSON.stringify({}));
     }
   }, []);
 
@@ -156,13 +178,22 @@ function Content() {
 
   const winOrLose = (currRow, correctCount) => {
     if (correctCount === 5) {
-      gameWon();
+      gameWon(currRow);
     } else if (currRow >= 6) {
       gameLost();
     }
   };
 
-  const gameWon = () => {
+  const gameWon = (currRow) => {
+    let now = new Date();
+    let timeFromStart = Math.floor((now - gameStart) / 100);
+    setUserStats({
+      ...userStats,
+      wins: userStats.wins + 1,
+      gamesPlayed: userStats.gamesPlayed + 1,
+      rowWon: [...userStats.rowWon, currRow],
+      avgDuration: [...userStats.avgDuration, timeFromStart],
+    });
     setWonGame(true);
     setDialogContent("Whoohoo you got it! Keep it up!");
     setDialogTitle("You Won!");
@@ -171,6 +202,11 @@ function Content() {
   };
 
   const gameLost = () => {
+    setUserStats({
+      ...userStats,
+      losses: userStats.losses + 1,
+      gamesPlayed: userStats.gamesPlayed + 1,
+    });
     setLostGame(true);
     setDialogContent("Better luck next time...");
     setDialogTitle("Tomorrows the charm!");
@@ -188,8 +224,7 @@ function Content() {
       let charNotInWord = [];
       let correctCount = 0;
       let currCellColor = [];
-      let currRow = currentRow + 1;
-      word.split("").map((letter, i) => {
+      word.split("").forEach((letter, i) => {
         if (answer.includes(letter)) {
           if (answer[i] === letter) {
             correctCount++;
@@ -204,12 +239,12 @@ function Content() {
           charNotInWord.push(letter);
         }
       });
-      setCurrentRow(currRow);
+      winOrLose(currentRow + 1, correctCount);
+      setCurrentRow(() => currentRow + 1);
       setCellColor([...cellColor, currCellColor]);
       setGuess([...guess, word]);
       setBoxes([...boxes, currentBoxes]);
       setNotInWord([...notInWord, charNotInWord]);
-      winOrLose(currRow, correctCount);
       setWord("");
     } else {
       invalidWord();
@@ -247,7 +282,7 @@ function Content() {
 
   return (
     <Container maxWidth="sm">
-      <NavBar />
+      <NavBar stats={userStats} />
       <CellLayout />
       <KeyBoard
         enterWord={enterWord}

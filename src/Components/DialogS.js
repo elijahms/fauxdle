@@ -12,7 +12,6 @@ const DialogS = ({
   winningText,
   wonGame,
 }) => {
-  
   const shareWin = () => {
     if (navigator.share) {
       navigator.share({
@@ -29,8 +28,12 @@ const DialogS = ({
       <DialogTitle>{dialogTitle}</DialogTitle>
       <DialogContent>
         <DialogContentText>{dialogContent}</DialogContentText>
+        {wonGame && (
+          <Button variant="contained" sx={{mt:3}} onClick={shareWin}>
+            Share
+          </Button>
+        )}
       </DialogContent>
-      {wonGame && <Button onClick={shareWin}>Share</Button>}
     </Dialog>
   );
 };
