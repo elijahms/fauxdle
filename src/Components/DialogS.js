@@ -2,20 +2,17 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
-import { useState } from "react";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
 
-const DialogS = (props) => {
-  const {
-    dialogTitle,
-    dialogContent,
-    handleClickOpenDialog,
-    openDialog,
-    handleCloseDialog,
-    winningText,
-    wonGame
-  } = props;
-
+const DialogS = ({
+  dialogTitle,
+  dialogContent,
+  openDialog,
+  handleCloseDialog,
+  winningText,
+  wonGame,
+}) => {
+  
   const shareWin = () => {
     if (navigator.share) {
       navigator.share({
@@ -23,7 +20,7 @@ const DialogS = (props) => {
         text: `Fauxdle 001 \n ${winningText}`,
       });
     } else {
-      console.log("not working");
+      alert("Sharing is Disabled");
     }
   };
 

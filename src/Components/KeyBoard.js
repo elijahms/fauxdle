@@ -2,7 +2,7 @@ import Key from "./Key";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 
-const KeyBoard = ({ Enterword, notInWord }) => {
+const KeyBoard = ({ Enterword, notInWord, wonGame, lostGame }) => {
   const firstrow = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"];
   const secondrow = ["a", "s", "d", "f", "g", "h", "j", "k", "l"];
   const thirdrow = ["⏎", "z", "x", "c", "v", "b", "n", "m", "⬅"];
@@ -23,6 +23,8 @@ const KeyBoard = ({ Enterword, notInWord }) => {
               key={i}
               Enterword={Enterword}
               notInWord={notInWord}
+              wonGame={wonGame}
+              lostGame={lostGame}
             />
           );
         })}
@@ -41,6 +43,8 @@ const KeyBoard = ({ Enterword, notInWord }) => {
               key={i}
               Enterword={Enterword}
               notInWord={notInWord}
+              wonGame={wonGame}
+              lostGame={lostGame}
             />
           );
         })}
@@ -58,6 +62,8 @@ const KeyBoard = ({ Enterword, notInWord }) => {
               key={i}
               Enterword={Enterword}
               notInWord={notInWord}
+              wonGame={wonGame}
+              lostGame={lostGame}
             />
           );
         })}

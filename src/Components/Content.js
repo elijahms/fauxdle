@@ -2,15 +2,13 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import { useState, useEffect } from "react";
 import KeyBoard from "./KeyBoard";
-import Typography from "@mui/material/Typography";
 import Cell from "./Cell";
 import Stack from "@mui/material/Stack";
 import Snackbar from "@mui/material/Snackbar";
 import { WORDS } from "../Constants/wordlist";
 import { useCookies } from "react-cookie";
 import Dialog from "./DialogS";
-import QueryStatsIcon from "@mui/icons-material/QueryStats";
-import HelpOutlineRoundedIcon from "@mui/icons-material/HelpOutlineRounded";
+import NavBar from "./NavBar";
 
 function Content() {
   const [cookies, setCookie] = useCookies(["word"]);
@@ -22,10 +20,12 @@ function Content() {
   const [snackMessage, setSnackMessage] = useState("Not in Word List");
   const [openSnackBar, setOpenSnackBar] = useState(false);
   const [wonGame, setWonGame] = useState(false);
-  const [falseWord, setFalseWord] = useState(false);
   const [answer, setAnswer] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [winningText, setWinningText] = useState("");
+  const [dialogContent, setDialogContent] = useState("");
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [lostGame, setLostGame] = useState(false);
 
   // const [guessObj, setGuessObj] = useState({
   //   boxes: [],
@@ -45,17 +45,6 @@ function Content() {
       localStorage.setItem("gameWon", JSON.stringify(wonGame));
     }
   }, [word, currentRow]);
-
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenSnackBar(false);
-  };
-  const dayOfYear = (date) =>
-    Math.floor(
-      (date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24
-    );
 
   useEffect(() => {
     if (!cookies.word) {
@@ -97,6 +86,18 @@ function Content() {
     }
   }, []);
 
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackBar(false);
+  };
+
+  const dayOfYear = (date) =>
+    Math.floor(
+      (date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24
+    );
+
   function Enterword(e) {
     if (e.target.value === "⬅") {
       if (word.length > 0) {
@@ -126,11 +127,9 @@ function Content() {
     setOpenDialog(false);
   };
 
-  const gameWon = () => {
-    console.log(boxes);
-    setWonGame(true);
+  const shareWin = () => {
     let shareabletext = [
-      boxes.flat().map((c, i) => {
+      boxes.flat().map((c) => {
         if (c === "green") {
           return "🟩";
         } else if (c === "orange") {
@@ -145,121 +144,149 @@ function Content() {
       "🟩",
       "🟩",
     ];
-    console.log(boxes);
     shareabletext = shareabletext
       .flat()
       .map((m, i) => (i % 5 === 0 ? "\n" + m : m))
       .join("");
-    console.log(shareabletext);
-    setWinningText(shareabletext);
+    return shareabletext;
+  };
+
+  const gameWon = () => {
+    setWonGame(true);
+    setDialogContent("winner winner winner");
+    setDialogTitle("You Won!");
+    setWinningText(shareWin());
     handleClickOpenDialog();
   };
 
   const gameLost = () => {
-    setNotInWord([...notInWord, ["⏎", "⬅"]]);
+    setLostGame(true);
+    setDialogContent("loser loser loser");
+    setDialogTitle("You Lost!");
     handleClickOpenDialog();
   };
 
+  const invalidWord = () => {
+    setSnackMessage("Not in Word List");
+    setOpenSnackBar(true);
+  };
+
+  //   const checkAnswer = () => {
+  //     let currentBoxes = [];
+  //     let letnotinword = [];
+  //     let correctCount = 0;
+  //     if (WORDS.includes(word)) {
+  //       setCurrentRow(currentRow + 1);
+  //       setGuess([...guess, word]);
+  //       if (word === answer) {
+  //         word.split("").map(() => currentBoxes.push("green"));
+  //         setBoxes([...boxes, currentBoxes]);
+  //         setWord("");
+  //         gameWon();
+  //       } else {
+  //         word.split("").map((letter, index) => {
+  //           if (answer.includes(letter)) {
+  //             if (answer[index] === letter) {
+  //               correctCount++;
+  //               return currentBoxes.push("green");
+  //             } else {
+  //               return currentBoxes.push("orange");
+  //             }
+  //           } else {
+  //             return currentBoxes.push("gray"), letnotinword.push(letter);
+  //           }
+  //         });
+  //         setBoxes([...boxes, currentBoxes]);
+  //         setNotInWord([...notInWord, letnotinword]);
+  //         let checkrow = parseInt(currentRow) + 1;
+  //         if (checkrow >= 6) {
+  //           gameLost();
+  //         } else {
+  //           setWord("");
+  //         }
+  //       }
+  //     } else {
+  //       setSnackMessage("Not in Word List");
+  //       setOpenSnackBar(true);
+  //     }
+  //   };
+
   const checkAnswer = () => {
-    setFalseWord(false);
     if (WORDS.includes(word)) {
+      let currentBoxes = [];
+      let charNotInWord = [];
+      let correctCount = 0;
+      word.split("").map((letter, index) => {
+        if (answer.includes(letter)) {
+          if (answer[index] === letter) {
+            correctCount++;
+            return currentBoxes.push("green");
+          } else {
+            return currentBoxes.push("orange");
+          }
+        } else {
+          return currentBoxes.push("gray"), charNotInWord.push(letter);
+        }
+      });
       setCurrentRow(currentRow + 1);
       setGuess([...guess, word]);
-      if (word === answer) {
-        setSnackMessage("You Won!");
-        let currentBoxes = [];
-        word.split("").map(() => currentBoxes.push("green"));
-        setBoxes([...boxes, currentBoxes]);
-        setWord("");
-        gameWon();
-      } else {
-        let currentBoxes = [];
-        let letnotinword = [];
-        word.split("").map((letter, index) => {
-          if (answer.includes(letter)) {
-            if (answer[index] === letter) {
-              return currentBoxes.push("green");
-            } else {
-              return currentBoxes.push("orange");
-            }
-          } else {
-            return currentBoxes.push("gray"), letnotinword.push(letter);
-          }
-        });
-        setBoxes([...boxes, currentBoxes]);
-        setNotInWord([...notInWord, letnotinword]);
-        let checkrow = parseInt(currentRow) + 1;
-        console.log(checkrow);
-        if (checkrow >= 6) {
-          gameLost();
-        } else {
-          setWord("");
-        }
-      }
+      setBoxes([...boxes, currentBoxes]);
+      setNotInWord([...notInWord, charNotInWord]);
+      correctCount === 5 && gameWon();
+      currentRow + 1 >= 6 ? gameLost() : setWord("");
     } else {
-      setSnackMessage("Not in Word List");
-      setOpenSnackBar(true);
-      setFalseWord(true);
+      invalidWord();
     }
   };
 
+  function CellLayout() {
+    return [...Array(6)].map((stack, s) => {
+      return (
+        <Stack
+          sx={{ mb: 0.5 }}
+          key={s}
+          justifyContent="center"
+          direction="row"
+          spacing={1}
+        >
+          {[...Array(5)].map((cell, c) => {
+            let row = Math.floor((c + 5 * s) / 5);
+            return (
+              <Cell
+                key={c}
+                row={row}
+                guess={guess[row]}
+                placement={c}
+                currentRow={currentRow}
+                word={word}
+                boxes={boxes[row]}
+              />
+            );
+          })}
+        </Stack>
+      );
+    });
+  }
+
   return (
-    <Container
-      maxWidth="sm"
-      sx={{
-        marginBottom: 2,
-        height: "100vh",
-      }}
-    >
-      <Stack
-        direction="row"
-        spacing={7}
-        sx={{ mt: 1 }}
-        justifyContent="center"
-        alignItems="center"
-      >
-        <HelpOutlineRoundedIcon />
-        <Typography variant="h4">FAUXDLE</Typography>
-        <QueryStatsIcon />
-      </Stack>
-      <Box sx={{ pt: 1, pb: 1 }}>
-        {[...Array(6)].map((stack, s) => {
-          return (
-            <Stack
-              sx={{ mb: 0.5, justifyContent: "center" }}
-              key={s}
-              direction="row"
-              spacing={1}
-            >
-              {[...Array(5)].map((cell, c) => {
-                let row = Math.floor((c + 5 * s) / 5);
-                return (
-                  <Cell
-                    key={c}
-                    row={row}
-                    guess={guess[row]}
-                    placement={c}
-                    currentRow={currentRow}
-                    word={word}
-                    boxes={boxes[row]}
-                  />
-                );
-              })}
-            </Stack>
-          );
-        })}
-      </Box>
-      {!wonGame && <KeyBoard Enterword={Enterword} notInWord={notInWord} />}
+    <Container maxWidth="sm">
+      <NavBar />
+      <CellLayout />
+      <KeyBoard
+        Enterword={Enterword}
+        notInWord={notInWord}
+        wonGame={wonGame}
+        lostGame={lostGame}
+      />
       <Snackbar
         open={openSnackBar}
-        autoHideDuration={1500}
+        autoHideDuration={1000}
         onClose={handleClose}
         message={snackMessage}
       />
       <Dialog
-        dialogTitle={"You Got It!"}
-        dialogContent={"winner winner winner"}
-        handleClickOpenDialog={handleClickOpenDialog}
+        dialogTitle={dialogTitle}
+        dialogContent={dialogContent}
         openDialog={openDialog}
         handleCloseDialog={handleCloseDialog}
         winningText={winningText}

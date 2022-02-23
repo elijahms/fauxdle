@@ -1,15 +1,23 @@
 import Button from "@mui/material/Button";
 
-const Key = ({ letter, Enterword, notInWord }) => {
+const Key = ({ letter, Enterword, notInWord, wonGame, lostGame }) => {
+  const keyColor = () => {
+    if (letter === "⏎" || letter === "⬅") {
+      return "black";
+    } else if (notInWord.flat().includes(letter)) {
+      return "gray";
+    }
+  };
+
   return (
     <Button
-      disabled={notInWord.flat().includes(letter) ? true : false}
+      disabled={wonGame || lostGame ? true : false}
       variant="contained"
       sx={{
-        p: 0.5,
-        m: 0.2,
+        ml: 0.2,
+        lr: 0.2,
         width: "100%",
-        backgroundColor: `${letter === "⏎" || letter === "⬅" ? "black" : ""}`,
+        backgroundColor: `${keyColor()}`,
       }}
       onClick={Enterword}
       value={letter}
