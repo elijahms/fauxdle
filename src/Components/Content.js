@@ -284,7 +284,7 @@ function Content() {
 
   return (
     <Container maxWidth="sm">
-      <NavBar stats={userStats} winningText={winningText} />
+      <NavBar stats={userStats} winningText={shareWin} />
       <CellLayout />
       <KeyBoard enterWord={enterWord} cellColor={cellColor} />
       <Snackbar
@@ -297,7 +297,7 @@ function Content() {
         dialog={dialog}
         openDialog={openDialog}
         setOpenDialog={setOpenDialog}
-        winningText={winningText}
+        winningText={shareWin}
         wonGame={wonGame}
       />
     </Container>
