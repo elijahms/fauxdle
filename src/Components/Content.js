@@ -147,17 +147,12 @@ function Content() {
           return "⬛";
         }
       }),
-      "🟩",
-      "🟩",
-      "🟩",
-      "🟩",
-      "🟩",
     ];
     let dPLusX = Math.floor(
       (new Date() - new Date("02/22/2022")) / (1000 * 3600 * 24)
     );
     shareabletext =
-      `Fauxdle #${dPLusX} | ${currentRow + 1}/6 \n` +
+      `Fauxdle #${dPLusX} | ${currentRow}/6 \n` +
       shareabletext
         .flat()
         .map((m, i) => (i % 5 === 0 ? "\n" + m : m))

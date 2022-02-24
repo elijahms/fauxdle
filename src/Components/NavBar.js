@@ -31,6 +31,7 @@ const NavBar = ({ stats, winningText}) => {
           text: `${winningText()}`,
         });
       } else {
+        console.log(winningText())
         alert("Sharing is Disabled on Desktop");
       }
     };

@@ -12,6 +12,7 @@ const DialogS = ({ dialog, openDialog, setOpenDialog, winningText }) => {
         text: `${winningText()}`,
       });
     } else {
+      console.log(winningText());
       alert("Sharing is Disabled");
     }
   };
