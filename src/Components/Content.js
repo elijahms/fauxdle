@@ -15,15 +15,13 @@ function Content() {
   const [guess, setGuess] = useState([]);
   const [boxes, setBoxes] = useState([]);
   const [currentRow, setCurrentRow] = useState(0);
-  const [notInWord, setNotInWord] = useState([]);
   const [snackMessage, setSnackMessage] = useState("Not in Word List");
   const [openSnackBar, setOpenSnackBar] = useState(false);
   const [wonGame, setWonGame] = useState(false);
   const [answer, setAnswer] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [winningText, setWinningText] = useState("");
-  const [dialogContent, setDialogContent] = useState("");
-  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialog, setDialog] = useState({ title: "", content: "" });
   const [lostGame, setLostGame] = useState(false);
   const [cellColor, setCellColor] = useState([]);
   const [userStats, setUserStats] = useState({
@@ -34,6 +32,20 @@ function Content() {
     gamesPlayed: 0,
   });
   let gameStart = new Date();
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackBar(false);
+  };
+  const dayOfYear = (date) =>
+    Math.floor(
+      (date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24
+    );
+
+  // useEffect(() => {
+  //   localStorage.setItem("stats", JSON.stringify(userStats));
+  // }, [wonGame, lostGame]);
 
   useEffect(() => {
     if (word !== "" || currentRow !== 0) {
@@ -41,32 +53,36 @@ function Content() {
       localStorage.setItem("boxes", JSON.stringify(boxes));
       localStorage.setItem("word", JSON.stringify(word));
       localStorage.setItem("currentRow", JSON.stringify(currentRow));
-      localStorage.setItem("notInWord", JSON.stringify(notInWord));
-      localStorage.setItem("gameWon", JSON.stringify(wonGame));
-      localStorage.setItem("gameLost", JSON.stringify(lostGame));
+      localStorage.setItem("letterColor", JSON.stringify(cellColor));
       localStorage.setItem("stats", JSON.stringify(userStats));
     }
-  }, [word, currentRow, userStats]);
+  }, [word, currentRow]);
 
   useEffect(() => {
-    if (!cookies.word || localStorage.getItem('nolimitmode')) {
+    if (!cookies.word || localStorage.getItem("nolimitmode")) {
       localStorage.removeItem(
         "guess",
         "boxes",
         "word",
         "currentRow",
-        "notInWord",
+        "letterColor",
         "gameWon",
         "gameLost"
       );
+      localStorage.setItem("guess", JSON.stringify([]));
+      localStorage.setItem("boxes", JSON.stringify([]));
+      localStorage.setItem("word", JSON.stringify(""));
+      localStorage.setItem("currentRow", JSON.stringify(0));
+      localStorage.setItem("letterColor", JSON.stringify([]));
+      localStorage.setItem("gameWon", "false");
+      localStorage.setItem("gameLost", "false");
       let expiration = new Date();
       expiration.setHours(23, 59, 59, 999);
       let syncedAnswer = dayOfYear(new Date());
       syncedAnswer = WORDS[Math.floor((syncedAnswer / 365) * WORDS.length)];
-      if (localStorage.getItem('nolimitmode')) {
+      if (localStorage.getItem("nolimitmode")) {
         syncedAnswer = WORDS[Math.floor(Math.random() * WORDS.length)];
       }
-      //let todaysAnswer = WORDS[Math.floor(Math.random() * WORDS.length)];
       setCookie("word", syncedAnswer, {
         path: "/",
         expires: expiration,
@@ -74,77 +90,50 @@ function Content() {
         sameSite: "strict",
       });
       setAnswer(syncedAnswer);
-      localStorage.setItem("guess", JSON.stringify([]));
-      localStorage.setItem("boxes", JSON.stringify([]));
-      localStorage.setItem("word", JSON.stringify(""));
-      localStorage.setItem("currentRow", JSON.stringify(0));
-      localStorage.setItem("notInWord", JSON.stringify([]));
-      localStorage.setItem("gameWon", "false");
-      localStorage.setItem("gameLost", "false");
     } else {
       setAnswer(cookies.word);
       let savedGuess = localStorage.getItem("guess");
       let savedBoxes = localStorage.getItem("boxes");
       let savedWord = localStorage.getItem("word");
       let savedCurrentRow = localStorage.getItem("currentRow");
-      let savedNotInWord = localStorage.getItem("notInWord");
+      let savedLetterColor = localStorage.getItem("letterColor");
+      let savedGameWon = localStorage.getItem("gameWon");
+      let savedGameLost = localStorage.getItem("gameLost");
       setGuess(JSON.parse(savedGuess));
       setBoxes(JSON.parse(savedBoxes));
       setWord(JSON.parse(savedWord));
-      setNotInWord(JSON.parse(savedNotInWord));
+      setCellColor(JSON.parse(savedLetterColor));
       setCurrentRow(JSON.parse(savedCurrentRow));
-      if (localStorage.getItem("gameWon") === "true") {
-        gameWon();
-      }
-      if (localStorage.getItem("gameLost") === "true") {
-        gameLost();
-      }
+      setWonGame(JSON.parse(savedGameWon));
+      setLostGame(JSON.parse(savedGameLost));
     }
     if (localStorage.getItem("stats")) {
       let stats = localStorage.getItem("stats");
       setUserStats(JSON.parse(stats));
     } else {
-      localStorage.setItem("stats", JSON.stringify({}));
+      localStorage.setItem("stats", JSON.stringify(userStats));
     }
   }, []);
 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenSnackBar(false);
-  };
-
-  const dayOfYear = (date) =>
-    Math.floor(
-      (date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24
-    );
-
   const enterWord = (e) => {
-    if (e.target.value === "⬅") {
-      if (word.length > 0) {
-        setWord(() => word.slice(0, -1));
-      }
-    } else if (e.target.value === "⏎") {
-      if (word.length === 5) {
-        checkAnswer();
+    if (!wonGame && !lostGame) {
+      if (e.target.value === "⬅") {
+        if (word.length > 0) {
+          setWord(() => word.slice(0, -1));
+        }
+      } else if (e.target.value === "⏎") {
+        if (word.length === 5) {
+          checkAnswer();
+        } else {
+          setSnackMessage("Not Long Enough");
+          setOpenSnackBar(true);
+        }
       } else {
-        setSnackMessage("Not Long Enough");
-        setOpenSnackBar(true);
-      }
-    } else {
-      if (word.length <= 4 && word.length >= 0) {
-        setWord(() => word + e.target.value);
+        if (word.length <= 4 && word.length >= 0) {
+          setWord(() => word + e.target.value);
+        }
       }
     }
-  };
-
-  const handleClickOpenDialog = () => {
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
   };
 
   const shareWin = () => {
@@ -164,11 +153,11 @@ function Content() {
       "🟩",
       "🟩",
     ];
-    let firstFauxdle = new Date("02/22/2022");
-    let today = new Date();
-    let daysFromStart = Math.floor((today - firstFauxdle) / (1000 * 3600 * 24));
+    let dPLusX = Math.floor(
+      (new Date() - new Date("02/22/2022")) / (1000 * 3600 * 24)
+    );
     shareabletext =
-      `Fauxdle #${daysFromStart} | ${currentRow + 1}/6 \n` +
+      `Fauxdle #${dPLusX} | ${currentRow + 1}/6 \n` +
       shareabletext
         .flat()
         .map((m, i) => (i % 5 === 0 ? "\n" + m : m))
@@ -179,38 +168,48 @@ function Content() {
   const winOrLose = (currRow, correctCount) => {
     if (correctCount === 5) {
       gameWon(currRow);
+      let now = new Date();
+      let timeFromStart = Math.floor((now - gameStart) / 100);
+      setUserStats({
+        ...userStats,
+        wins: userStats.wins + 1,
+        gamesPlayed: userStats.gamesPlayed + 1,
+        rowWon: [...userStats.rowWon, currRow],
+        avgDuration: [...userStats.avgDuration, timeFromStart],
+      });
     } else if (currRow >= 6) {
       gameLost();
+      setUserStats({
+        ...userStats,
+        losses: userStats.losses + 1,
+        gamesPlayed: userStats.gamesPlayed + 1,
+      });
     }
   };
 
-  const gameWon = (currRow) => {
-    let now = new Date();
-    let timeFromStart = Math.floor((now - gameStart) / 100);
-    setUserStats({
-      ...userStats,
-      wins: userStats.wins + 1,
-      gamesPlayed: userStats.gamesPlayed + 1,
-      rowWon: [...userStats.rowWon, currRow],
-      avgDuration: [...userStats.avgDuration, timeFromStart],
-    });
+  const gameWon = () => {
+    localStorage.setItem("gameWon", JSON.stringify(true));
+    //localStorage.setItem("stats", JSON.stringify(userStats));
     setWonGame(true);
-    setDialogContent("Whoohoo you got it! Keep it up!");
-    setDialogTitle("You Won!");
+    setDialog({
+      ...dialog,
+      content: "Woohoo you got it! Keep it up!",
+      title: "You Won!",
+    });
     setWinningText(shareWin());
-    handleClickOpenDialog();
+    setOpenDialog(true);
   };
 
   const gameLost = () => {
-    setUserStats({
-      ...userStats,
-      losses: userStats.losses + 1,
-      gamesPlayed: userStats.gamesPlayed + 1,
-    });
+    localStorage.setItem("gameLost", JSON.stringify(true));
+    //localStorage.setItem("stats", JSON.stringify(userStats));
     setLostGame(true);
-    setDialogContent("Better luck next time...");
-    setDialogTitle("Tomorrows the charm!");
-    handleClickOpenDialog();
+    setDialog({
+      ...dialog,
+      content: "Better luck next time...",
+      title: "Tomorrow's the charm!",
+    });
+    setOpenDialog(true);
   };
 
   const invalidWord = () => {
@@ -219,12 +218,13 @@ function Content() {
   };
 
   const checkAnswer = () => {
+    //Little unlimited cheat for Maddie
     if (guess[0] === "noxxx" && word === "limit") {
       localStorage.setItem("nolimitmode", "true");
     }
     if (WORDS.includes(word) || word === "noxxx") {
+      //Variables to more easily work with content
       let currentBoxes = [];
-      let charNotInWord = [];
       let correctCount = 0;
       let currCellColor = [];
       word.split("").forEach((letter, i) => {
@@ -239,15 +239,14 @@ function Content() {
           }
         } else {
           currentBoxes.push("gray");
-          charNotInWord.push(letter);
+          currCellColor.push([letter, "#404744"]);
         }
       });
       winOrLose(currentRow + 1, correctCount);
       setCurrentRow(() => currentRow + 1);
       setCellColor([...cellColor, currCellColor]);
-      setGuess([...guess, word]);
-      setBoxes([...boxes, currentBoxes]);
-      setNotInWord([...notInWord, charNotInWord]);
+      setGuess(() => [...guess, word]);
+      setBoxes(() => [...boxes, currentBoxes]);
       setWord("");
     } else {
       invalidWord();
@@ -274,7 +273,7 @@ function Content() {
                 placement={c}
                 currentRow={currentRow}
                 word={word}
-                boxes={boxes[row]}
+                box={boxes[row]}
               />
             );
           })}
@@ -287,13 +286,7 @@ function Content() {
     <Container maxWidth="sm">
       <NavBar stats={userStats} />
       <CellLayout />
-      <KeyBoard
-        enterWord={enterWord}
-        notInWord={notInWord}
-        wonGame={wonGame}
-        lostGame={lostGame}
-        cellColor={cellColor}
-      />
+      <KeyBoard enterWord={enterWord} cellColor={cellColor} />
       <Snackbar
         open={openSnackBar}
         autoHideDuration={1000}
@@ -301,10 +294,9 @@ function Content() {
         message={snackMessage}
       />
       <Dialog
-        dialogTitle={dialogTitle}
-        dialogContent={dialogContent}
+        dialog={dialog}
         openDialog={openDialog}
-        handleCloseDialog={handleCloseDialog}
+        setOpenDialog={setOpenDialog}
         winningText={winningText}
         wonGame={wonGame}
       />
