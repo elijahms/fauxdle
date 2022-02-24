@@ -28,7 +28,7 @@ const NavBar = ({ stats, winningText}) => {
       if (navigator.share) {
         navigator.share({
           title: "Fauxdle",
-          text: `${winningText}`,
+          text: `${winningText()}`,
         });
       } else {
         alert("Sharing is Disabled on Desktop");

@@ -9,7 +9,7 @@ const DialogS = ({ dialog, openDialog, setOpenDialog, winningText }) => {
     if (navigator.share) {
       navigator.share({
         title: "Fauxdle",
-        text: `${winningText}`,
+        text: `${winningText()}`,
       });
     } else {
       alert("Sharing is Disabled");
