@@ -1,16 +1,7 @@
-
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
 }
 
 @font-face {
@@ -20,20 +11,32 @@ code {
 
 #keyboard-box {
   position: absolute;
-  bottom: 30px;
+  bottom: 1vh;
   width: 50vw;
   left: 25vw;
+  min-height: 24vh;
+}
+.keyboard-row {
+  min-height: 8vh;
+}
+
+.cell {
+  border: 2px solid #b2beb5;
+  font-size: 2rem;
+  width: 63px;
+  height: 63px;
+  color: white;
 }
 
 @media only screen and (max-width: 450px) {
   #keyboard-box {
-    position: absolute;
-    bottom: 1vh;
+    /* position: absolute; */
+    /* bottom: 1vh; */
     width: 96vw;
     left: 2vw;
-    min-height: 24vh;
+    /* min-height: 24vh; */
   }
-  .keyboard-row {
+  /* .keyboard-row {
     min-height: 8vh;
-  }
+  } */
 }

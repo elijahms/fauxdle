@@ -4,14 +4,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import Button from "@mui/material/Button";
 
-const DialogS = ({
-  dialogTitle,
-  dialogContent,
-  openDialog,
-  handleCloseDialog,
-  winningText,
-  wonGame,
-}) => {
+const DialogS = ({ dialog, openDialog, setOpenDialog, winningText }) => {
   const shareWin = () => {
     if (navigator.share) {
       navigator.share({
@@ -24,15 +17,13 @@ const DialogS = ({
   };
 
   return (
-    <Dialog open={openDialog} onClose={handleCloseDialog}>
-      <DialogTitle>{dialogTitle}</DialogTitle>
+    <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      <DialogTitle>{dialog.title}</DialogTitle>
       <DialogContent>
-        <DialogContentText>{dialogContent}</DialogContentText>
-        {wonGame && (
-          <Button variant="contained" sx={{mt:3}} onClick={shareWin}>
-            Share
-          </Button>
-        )}
+        <DialogContentText>{dialog.content}</DialogContentText>
+        <Button variant="contained" sx={{ mt: 3 }} onClick={shareWin}>
+          Share
+        </Button>
       </DialogContent>
     </Dialog>
   );

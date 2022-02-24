@@ -2,7 +2,7 @@ import React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
-const Cell = ({ word, boxes, currentRow, row, placement, guess }) => {
+const Cell = ({ word, box, currentRow, row, placement, guess }) => {
   const cellContent = () => {
     if (row !== currentRow) {
       return guess ? guess.charAt(placement) : "";
@@ -15,21 +15,12 @@ const Cell = ({ word, boxes, currentRow, row, placement, guess }) => {
     if (row === currentRow) {
       return "";
     } else {
-      return boxes ? boxes[placement] : "";
+      return box ? box[placement] : "";
     }
   };
 
   return (
-    <Box
-      sx={{
-        backgroundColor: `${cellBackGround()}`,
-        border: `2px solid #B2BEB5`,
-        fontSize: "2rem",
-        width: "63px",
-        height: "63px",
-        color: "white",
-      }}
-    >
+    <Box className="cell" sx={{ backgroundColor: `${cellBackGround()}` }}>
       <Typography variant="h3" align="center" justify="center">
         {cellContent()}
       </Typography>
