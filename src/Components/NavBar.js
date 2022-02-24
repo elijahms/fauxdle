@@ -9,12 +9,13 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import React, { useState } from "react";
+import Button from '@mui/material/Button'
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const NavBar = ({ stats }) => {
+const NavBar = ({ stats, winningText}) => {
   const [open, setOpen] = useState(false);
   const [navDialog, setNavDialog] = useState({ title: "", content: "" });
   let rowAvg = stats.rowWon.reduce(function (a, b) {
@@ -23,6 +24,16 @@ const NavBar = ({ stats }) => {
   let timeAvg = stats.avgDuration.reduce(function (a, b) {
     return a + b;
   }, 0);
+    const shareWin = () => {
+      if (navigator.share) {
+        navigator.share({
+          title: "Fauxdle",
+          text: `${winningText}`,
+        });
+      } else {
+        alert("Sharing is Disabled on Desktop");
+      }
+    };
 
   const statsModal = () => {
     setNavDialog({
@@ -76,6 +87,9 @@ const NavBar = ({ stats }) => {
         Games Lost: {stats.losses} <br />
         Average Win Row: {Math.floor(rowAvg / stats.wins)} <br />
         Average Time Playing: {Math.floor(timeAvg / stats.wins)} seconds <br />
+        <Button variant="contained" sx={{ mt: 3 }} onClick={shareWin}>
+          Share
+        </Button>
       </DialogContentText>
     );
   };

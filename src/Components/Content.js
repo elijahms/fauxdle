@@ -284,7 +284,7 @@ function Content() {
 
   return (
     <Container maxWidth="sm">
-      <NavBar stats={userStats} />
+      <NavBar stats={userStats} winningText={winningText} />
       <CellLayout />
       <KeyBoard enterWord={enterWord} cellColor={cellColor} />
       <Snackbar
