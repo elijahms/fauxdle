@@ -2,7 +2,7 @@ import Button from "@mui/material/Button";
 
 const Key = ({ letter, enterWord, cellColor }) => {
   const keyColor = () => {
-    if (letter === "⏎" || letter === "⬅") {
+    if (letter === "ENT" || letter === "⬅") {
       return "#088F8F";
     } else {
       let cellArr = [...cellColor].flat().filter((s) => s[0] === letter);

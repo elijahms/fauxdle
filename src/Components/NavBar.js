@@ -70,6 +70,7 @@ const NavBar = ({ stats, winningText}) => {
           Elijah Silverman
         </a>{" "}
         <br />
+        Github: {" "}
         <a target="_blank" href="https://github.com/elijahms/somegame">
           Github
         </a>

@@ -5,7 +5,7 @@ import Stack from "@mui/material/Stack";
 const KeyBoard = ({ enterWord, cellColor }) => {
   const firstrow = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"];
   const secondrow = ["a", "s", "d", "f", "g", "h", "j", "k", "l"];
-  const thirdrow = ["⏎", "z", "x", "c", "v", "b", "n", "m", "⬅"];
+  const thirdrow = ["ENT", "z", "x", "c", "v", "b", "n", "m", "⬅"];
 
   return (
     <Box id="keyboard-box">

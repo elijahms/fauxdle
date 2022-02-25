@@ -20,7 +20,7 @@ function Content() {
   const [wonGame, setWonGame] = useState(false);
   const [answer, setAnswer] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
-  const [winningText, setWinningText] = useState("");
+  // const [winningText, setWinningText] = useState("");
   const [dialog, setDialog] = useState({ title: "", content: "" });
   const [lostGame, setLostGame] = useState(false);
   const [cellColor, setCellColor] = useState([]);
@@ -121,7 +121,7 @@ function Content() {
         if (word.length > 0) {
           setWord(() => word.slice(0, -1));
         }
-      } else if (e.target.value === "⏎") {
+      } else if (e.target.value === "ENT") {
         if (word.length === 5) {
           checkAnswer();
         } else {
@@ -191,7 +191,7 @@ function Content() {
       content: "Woohoo you got it! Keep it up!",
       title: "You Won!",
     });
-    setWinningText(shareWin());
+    // setWinningText(shareWin());
     setOpenDialog(true);
   };
 
@@ -234,7 +234,7 @@ function Content() {
           }
         } else {
           currentBoxes.push("gray");
-          currCellColor.push([letter, "#404744"]);
+          currCellColor.push([letter, "rgba(114, 114, 114, 0.52)"]);
         }
       });
       winOrLose(currentRow + 1, correctCount);

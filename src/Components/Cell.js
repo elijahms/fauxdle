@@ -5,9 +5,9 @@ import Typography from "@mui/material/Typography";
 const Cell = ({ word, box, currentRow, row, placement, guess }) => {
   const cellContent = () => {
     if (row !== currentRow) {
-      return guess ? guess.charAt(placement) : "";
+      return guess ? guess.charAt(placement).toUpperCase() : "";
     } else {
-      return word.charAt(placement);
+      return word.charAt(placement).toUpperCase();
     }
   };
 
