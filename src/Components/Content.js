@@ -20,10 +20,10 @@ function Content() {
   const [wonGame, setWonGame] = useState(false);
   const [answer, setAnswer] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
-  // const [winningText, setWinningText] = useState("");
   const [dialog, setDialog] = useState({ title: "", content: "" });
   const [lostGame, setLostGame] = useState(false);
   const [cellColor, setCellColor] = useState([]);
+  const [gameStart, setGameStart] = useState(new Date())
   const [userStats, setUserStats] = useState({
     wins: 0,
     losses: 0,
@@ -31,7 +31,7 @@ function Content() {
     avgDuration: [],
     gamesPlayed: 0,
   });
-  let gameStart = new Date();
+  //let gameStart = new Date();
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -42,10 +42,6 @@ function Content() {
     Math.floor(
       (date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24
     );
-
-  // useEffect(() => {
-  //   localStorage.setItem("stats", JSON.stringify(userStats));
-  // }, [wonGame, lostGame]);
 
   useEffect(() => {
     if (word !== "" || currentRow !== 0) {

@@ -1,4 +1,5 @@
 //source : https://github.com/jakerella/guessle/blob/main/lists/freq_martinweisser_5.txt
+//Not currently used
 export const EASYLIST = [
   "which",
   "their",
