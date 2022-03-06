@@ -24,6 +24,7 @@ function Content() {
   const [lostGame, setLostGame] = useState(false);
   const [cellColor, setCellColor] = useState([]);
   const [gameStart, setGameStart] = useState(new Date())
+  const [triggerAn, setTriggerAn] = useState(false)
   const [userStats, setUserStats] = useState({
     wins: 0,
     losses: 0,
@@ -125,6 +126,7 @@ function Content() {
           setOpenSnackBar(true);
         }
       } else {
+        setTriggerAn(false);
         if (word.length <= 4 && word.length >= 0) {
           setWord(() => word + e.target.value);
         }
@@ -215,6 +217,7 @@ function Content() {
     }
     if (WORDS.includes(word) || word === "noxxx") {
       //Variables to more easily work with content
+      setTriggerAn(true);
       let currentBoxes = [];
       let correctCount = 0;
       let currCellColor = [];
@@ -265,6 +268,7 @@ function Content() {
                 currentRow={currentRow}
                 word={word}
                 box={boxes[row]}
+                triggerAn={triggerAn}
               />
             );
           })}
