@@ -1,55 +1,61 @@
-# !!Wordle Clone!! 
+# Fauxdle 🎯
 
-After marveling at Wordle's popularity over the last two months I decided as a new dev to take a stab at it. This recreation is is no way meant to take away from Wordle. Please visit the original [@Wordle](https://www.nytimes.com/games/wordle/index.html) and enjoy. If you do play my version feel free to leave me any tips, or reccomendations for improvements!
+A modern Wordle clone built with Next.js, Tailwind CSS, and shadcn/ui.
 
-Check it out: [@Fauxdle](https://gamesfordays.netlify.app)
+![Fauxdle Screenshot](/Users/elijahsilverman/.gemini/antigravity/brain/760ca9ad-77d2-49c4-95c8-612ca3b2be4c/initial_load_1767040807446.png)
 
-## Introduction
+## Play
 
-This was made in an attempt to mimic the original Wordle as best as possible. I did not in any way use or take any source code from any other simialar projects and all code here is solely my own. Enjoy!
+Guess the 5-letter word in 6 tries:
+- 🟩 **Green** — Correct letter, correct position
+- 🟧 **Orange** — Correct letter, wrong position
+- ⬛ **Gray** — Letter not in word
 
-## Technologies
+## Tech Stack
 
-Project is created with:
+- **Next.js 16** (App Router)
+- **Tailwind CSS v4**
+- **shadcn/ui** components
+- **TypeScript**
 
-- React.js version 17.0.2
-- MUI - (for styling)
-- Netlify
+## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+Open [http://localhost:3000](http://localhost:3000) to play.
 
 ## Features
 
-- Wordle aesthetic
-- Optimized for mobile
-- Cookies with expiration at end-of-day
-- Localstorage (resets at end of day) for persistance after refresh 
-- navigator.share for optimized sharing of 'win'
+- 🌓 Dark/Light mode toggle
+- ⌨️ Physical keyboard support
+- 📱 Mobile responsive
+- 💾 Game state persists on refresh
+- 📊 Stats tracking (wins, losses, avg guesses)
+- 📤 Share results with emoji grid
 
-## Setup
-
-To run this project, install it locally using npm:
-
-```
-$ cd ../somegame
-$ npm start
+## Project Structure
 
 ```
+src/
+├── app/           # Next.js App Router
+├── components/
+│   ├── ui/        # shadcn components
+│   └── game/      # Board, Cell, Key, Keyboard
+├── hooks/         # useGame hook (game logic)
+└── lib/           # Word list, utilities
+```
 
-## Contact
+## Credits
 
-Created by [@elijahsilverman](https://elijahsilverman.com) - feel free to contact me!
+Created by [Elijah Silverman](https://elijahsilverman.com)
 
-## Credit
-
-- MUI - thank you for the incredivle team behind this project! This was an invaluable resource
-- Netlify - thank you for a warm and cozy place to host the site!
-- All the open source dictionaries that enabled me to easily source the word lists
-- Cool Icon from [Pinclipart](https://www.pinclipart.com/pindetail/iToJmwJ_rocket-emoji-clipart-png-download/)
-
-## What is missing / in progress
-
-- Add stats over time
-- Animations
-- Instructions
-- Improve support for double letter words
-- Keyboard with more letter information
-- Icon / logo
+Inspired by [Wordle](https://www.nytimes.com/games/wordle/index.html)

@@ -1,9 +1,0 @@
-{
-  "short_name": "Fauxdle",
-  "name": "Fauxdle - mock wordle",
-  "icons": [],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#7558cc",
-  "background_color": "#ffffff"
-}
