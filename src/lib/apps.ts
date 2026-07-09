@@ -1,4 +1,10 @@
-import { Grid3x3, Infinity as InfinityIcon, Hexagon, Timer } from "lucide-react";
+import {
+  Languages,
+  Grid3x3,
+  Infinity as InfinityIcon,
+  Hexagon,
+  Timer,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface WordApp {
@@ -12,6 +18,14 @@ export interface WordApp {
 
 export const APPS: WordApp[] = [
   {
+    id: "arabic",
+    name: "Fauxdle عربي",
+    tagline: "Learn Arabic, one word at a time",
+    icon: Languages,
+    href: "/arabic",
+    status: "live",
+  },
+  {
     id: "fauxdle",
     name: "Fauxdle",
     tagline: "The daily 5-letter classic",
@@ -24,7 +38,8 @@ export const APPS: WordApp[] = [
     name: "Fauxdle Unlimited",
     tagline: "A new word every round, no waiting",
     icon: InfinityIcon,
-    status: "soon",
+    href: "/unlimited",
+    status: "live",
   },
   {
     id: "sixle",

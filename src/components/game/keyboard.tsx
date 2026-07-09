@@ -9,15 +9,19 @@ interface KeyboardProps {
   cellColor: [string, CellColor][][];
   /** True once a guess has been submitted this session — delays key colors until the flip finishes */
   delayReveal: boolean;
+  rows: string[][];
+  letterPattern: RegExp;
+  dir?: "ltr" | "rtl";
 }
 
-const ROWS = [
-  ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
-  ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
-  ["ENT", "z", "x", "c", "v", "b", "n", "m", "⬅"],
-];
-
-export function Keyboard({ onKeyPress, cellColor, delayReveal }: KeyboardProps) {
+export function Keyboard({
+  onKeyPress,
+  cellColor,
+  delayReveal,
+  rows,
+  letterPattern,
+  dir = "ltr",
+}: KeyboardProps) {
   // Key colors update after the cell flip completes (or instantly on restore)
   const [displayedCellColor, setDisplayedCellColor] = useState(cellColor);
 
@@ -34,11 +38,11 @@ export function Keyboard({ onKeyPress, cellColor, delayReveal }: KeyboardProps) 
         onKeyPress("Enter");
       } else if (e.key === "Backspace") {
         onKeyPress("Backspace");
-      } else if (/^[a-zA-Z]$/.test(e.key)) {
+      } else if (letterPattern.test(e.key)) {
         onKeyPress(e.key.toLowerCase());
       }
     },
-    [onKeyPress]
+    [onKeyPress, letterPattern]
   );
 
   useEffect(() => {
@@ -47,11 +51,18 @@ export function Keyboard({ onKeyPress, cellColor, delayReveal }: KeyboardProps) 
   }, [handleKeyDown]);
 
   return (
-    <div className="mx-auto flex w-full max-w-lg flex-col gap-1.5 px-1 sm:px-2">
-      {ROWS.map((row, i) => (
+    <div
+      className="mx-auto flex w-full max-w-lg flex-col gap-1.5 px-1 sm:px-2"
+      dir={dir}
+    >
+      {rows.map((row, i) => (
         <div
           key={i}
-          className={i === 1 ? "flex gap-1 px-[4.5%] sm:gap-1.5" : "flex gap-1 sm:gap-1.5"}
+          className={
+            i === 1
+              ? "flex gap-1 px-[4.5%] sm:gap-1.5"
+              : "flex gap-1 sm:gap-1.5"
+          }
         >
           {row.map((letter) => (
             <Key

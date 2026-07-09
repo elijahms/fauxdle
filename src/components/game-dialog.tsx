@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tile } from "@/components/game/tile";
+import type { ArabicWord } from "@/lib/arabic-words";
 
 interface GameDialogProps {
   open: boolean;
@@ -16,7 +17,11 @@ interface GameDialogProps {
   content: string;
   answer: string;
   won: boolean;
+  dir?: "ltr" | "rtl";
+  lesson?: ArabicWord;
   onShare: () => void;
+  /** Present in practice modes — renders the primary "New word" action */
+  onNewGame?: () => void;
 }
 
 export function GameDialog({
@@ -26,7 +31,10 @@ export function GameDialog({
   content,
   answer,
   won,
+  dir = "ltr",
+  lesson,
   onShare,
+  onNewGame,
 }: GameDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -38,6 +46,7 @@ export function GameDialog({
           <p className="text-muted-foreground">{content}</p>
           <div
             className="flex justify-center gap-1.5"
+            dir={dir}
             aria-label={`The word was ${answer}`}
           >
             {answer.split("").map((letter, i) => (
@@ -49,9 +58,35 @@ export function GameDialog({
               />
             ))}
           </div>
-          <Button onClick={onShare} className="w-full" size="lg">
-            Share result
-          </Button>
+          {lesson && (
+            <p className="text-center text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">
+                {lesson.translit}
+              </span>{" "}
+              — {lesson.meaning}
+            </p>
+          )}
+          <div className="flex flex-col gap-2">
+            {onNewGame ? (
+              <>
+                <Button onClick={onNewGame} className="w-full" size="lg">
+                  New word
+                </Button>
+                <Button
+                  onClick={onShare}
+                  variant="outline"
+                  className="w-full"
+                  size="lg"
+                >
+                  Share result
+                </Button>
+              </>
+            ) : (
+              <Button onClick={onShare} className="w-full" size="lg">
+                Share result
+              </Button>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

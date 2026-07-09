@@ -11,6 +11,7 @@ interface BoardProps {
   currentWord: string;
   justSubmittedRow: number | null;
   shakeNonce: number;
+  dir?: "ltr" | "rtl";
 }
 
 export function Board({
@@ -20,9 +21,10 @@ export function Board({
   currentWord,
   justSubmittedRow,
   shakeNonce,
+  dir = "ltr",
 }: BoardProps) {
   return (
-    <div className="flex flex-col items-center gap-1.5">
+    <div className="flex flex-col items-center gap-1.5" dir={dir}>
       {[...Array(6)].map((_, rowIndex) => {
         const isCurrentRow = rowIndex === currentRow;
         const isPastRow = rowIndex < currentRow;

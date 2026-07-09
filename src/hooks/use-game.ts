@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
-import { WORDS } from "@/lib/wordlist";
+import { GAME_CONFIGS, GameConfigId } from "@/lib/game-configs";
 
 export type CellColor = "green" | "orange" | "gray" | "";
 export type LetterColor = [string, CellColor][];
@@ -36,7 +36,13 @@ const initialStats: UserStats = {
   gamesPlayed: 0,
 };
 
-export function useGame() {
+const randomWord = (words: string[]) =>
+  words[Math.floor(Math.random() * words.length)];
+
+export function useGame(configId: GameConfigId = "daily") {
+  const config = GAME_CONFIGS[configId];
+  const statsKey = `${config.storagePrefix}stats`;
+
   const [word, setWord] = useState("");
   const [guess, setGuess] = useState<string[]>([]);
   const [boxes, setBoxes] = useState<CellColor[][]>([]);
@@ -57,91 +63,87 @@ export function useGame() {
   // Bumped on rejected guesses so the board can shake the current row
   const [shakeNonce, setShakeNonce] = useState(0);
 
-  // Save state to localStorage
+  // Persist in-progress board state (daily mode only)
   useEffect(() => {
-    if (!isInitialized) return;
+    if (!isInitialized || !config.daily) return;
     if (word !== "" || currentRow !== 0) {
       localStorage.setItem("guess", JSON.stringify(guess));
       localStorage.setItem("boxes", JSON.stringify(boxes));
       localStorage.setItem("word", JSON.stringify(word));
       localStorage.setItem("currentRow", JSON.stringify(currentRow));
       localStorage.setItem("letterColor", JSON.stringify(cellColor));
-      localStorage.setItem("stats", JSON.stringify(userStats));
     }
-  }, [word, currentRow, guess, boxes, cellColor, userStats, isInitialized]);
+  }, [word, currentRow, guess, boxes, cellColor, isInitialized, config.daily]);
+
+  // Persist stats (all modes)
+  useEffect(() => {
+    if (!isInitialized) return;
+    localStorage.setItem(statsKey, JSON.stringify(userStats));
+  }, [userStats, isInitialized, statsKey]);
 
   // Initialize game state
   useEffect(() => {
-    const savedCookie = Cookies.get("word");
-    const noLimitMode = localStorage.getItem("nolimitmode");
-
-    if (!savedCookie || noLimitMode) {
-      // New game - clear storage and set new word
-      localStorage.removeItem("guess");
-      localStorage.removeItem("boxes");
-      localStorage.removeItem("word");
-      localStorage.removeItem("currentRow");
-      localStorage.removeItem("letterColor");
-      localStorage.removeItem("gameWon");
-      localStorage.removeItem("gameLost");
-
-      localStorage.setItem("guess", JSON.stringify([]));
-      localStorage.setItem("boxes", JSON.stringify([]));
-      localStorage.setItem("word", JSON.stringify(""));
-      localStorage.setItem("currentRow", JSON.stringify(0));
-      localStorage.setItem("letterColor", JSON.stringify([]));
-      localStorage.setItem("gameWon", "false");
-      localStorage.setItem("gameLost", "false");
-
-      // Pick the answer: random in no-limit mode, otherwise synced to the day
-      let syncedAnswer: string;
-      if (noLimitMode) {
-        syncedAnswer = WORDS[Math.floor(Math.random() * WORDS.length)];
-      } else {
-        syncedAnswer = WORDS[dayOfYear(new Date()) % WORDS.length];
-      }
-
-      // Set cookie to expire at end of day
-      const expiration = new Date();
-      expiration.setHours(23, 59, 59, 999);
-      Cookies.set("word", syncedAnswer, {
-        expires: expiration,
-        sameSite: "strict",
-      });
-
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time client init from cookies/localStorage; must run post-hydration to stay SSR-safe
-      setAnswer(syncedAnswer);
+    if (!config.daily) {
+      // Practice modes: fresh random word every visit
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time client init; must run post-hydration to stay SSR-safe
+      setAnswer(randomWord(config.words));
     } else {
-      // Restore game state
-      setAnswer(savedCookie);
+      localStorage.removeItem("nolimitmode"); // retired easter-egg flag
+      const savedCookie = Cookies.get("word");
 
-      const savedGuess = localStorage.getItem("guess");
-      const savedBoxes = localStorage.getItem("boxes");
-      const savedWord = localStorage.getItem("word");
-      const savedCurrentRow = localStorage.getItem("currentRow");
-      const savedLetterColor = localStorage.getItem("letterColor");
-      const savedGameWon = localStorage.getItem("gameWon");
-      const savedGameLost = localStorage.getItem("gameLost");
+      if (!savedCookie) {
+        // New day - clear storage and set new word
+        localStorage.removeItem("guess");
+        localStorage.removeItem("boxes");
+        localStorage.removeItem("word");
+        localStorage.removeItem("currentRow");
+        localStorage.removeItem("letterColor");
+        localStorage.removeItem("gameWon");
+        localStorage.removeItem("gameLost");
 
-      if (savedGuess) setGuess(JSON.parse(savedGuess));
-      if (savedBoxes) setBoxes(JSON.parse(savedBoxes));
-      if (savedWord) setWord(JSON.parse(savedWord));
-      if (savedLetterColor) setCellColor(JSON.parse(savedLetterColor));
-      if (savedCurrentRow) setCurrentRow(JSON.parse(savedCurrentRow));
-      if (savedGameWon) setWonGame(JSON.parse(savedGameWon));
-      if (savedGameLost) setLostGame(JSON.parse(savedGameLost));
+        const syncedAnswer = config.words[dayOfYear(new Date()) % config.words.length];
+
+        // Set cookie to expire at end of day
+        const expiration = new Date();
+        expiration.setHours(23, 59, 59, 999);
+        Cookies.set("word", syncedAnswer, {
+          expires: expiration,
+          sameSite: "strict",
+        });
+
+         
+        setAnswer(syncedAnswer);
+      } else {
+        // Restore game state
+        setAnswer(savedCookie);
+
+        const savedGuess = localStorage.getItem("guess");
+        const savedBoxes = localStorage.getItem("boxes");
+        const savedWord = localStorage.getItem("word");
+        const savedCurrentRow = localStorage.getItem("currentRow");
+        const savedLetterColor = localStorage.getItem("letterColor");
+        const savedGameWon = localStorage.getItem("gameWon");
+        const savedGameLost = localStorage.getItem("gameLost");
+
+        if (savedGuess) setGuess(JSON.parse(savedGuess));
+        if (savedBoxes) setBoxes(JSON.parse(savedBoxes));
+        if (savedWord) setWord(JSON.parse(savedWord));
+        if (savedLetterColor) setCellColor(JSON.parse(savedLetterColor));
+        if (savedCurrentRow) setCurrentRow(JSON.parse(savedCurrentRow));
+        if (savedGameWon) setWonGame(JSON.parse(savedGameWon));
+        if (savedGameLost) setLostGame(JSON.parse(savedGameLost));
+      }
     }
 
     // Load stats
-    const savedStats = localStorage.getItem("stats");
+    const savedStats = localStorage.getItem(statsKey);
     if (savedStats) {
       setUserStats(JSON.parse(savedStats));
-    } else {
-      localStorage.setItem("stats", JSON.stringify(initialStats));
     }
 
     setGameStart(new Date());
     setIsInitialized(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- config values are constant per mounted route
   }, []);
 
   const rejectGuess = useCallback((message: string) => {
@@ -151,7 +153,7 @@ export function useGame() {
 
   const gameWon = useCallback(
     (currRow: number) => {
-      localStorage.setItem("gameWon", JSON.stringify(true));
+      if (config.daily) localStorage.setItem("gameWon", JSON.stringify(true));
       setWonGame(true);
       setDialogTitle("You won!");
       setDialogContent(
@@ -173,13 +175,13 @@ export function useGame() {
       // Let the reveal flip finish before celebrating
       setTimeout(() => setShowDialog(true), REVEAL_DURATION_MS + 200);
     },
-    [gameStart]
+    [gameStart, config.daily]
   );
 
   const gameLost = useCallback(() => {
-    localStorage.setItem("gameLost", JSON.stringify(true));
+    if (config.daily) localStorage.setItem("gameLost", JSON.stringify(true));
     setLostGame(true);
-    setDialogTitle("Tomorrow's the charm");
+    setDialogTitle(config.daily ? "Tomorrow's the charm" : "So close");
     setDialogContent("The word was:");
 
     setUserStats((prev) => ({
@@ -189,15 +191,10 @@ export function useGame() {
     }));
 
     setTimeout(() => setShowDialog(true), REVEAL_DURATION_MS + 200);
-  }, []);
+  }, [config.daily]);
 
   const checkAnswer = useCallback(() => {
-    // Easter egg for unlimited mode
-    if (guess[0] === "noxxx" && word === "limit") {
-      localStorage.setItem("nolimitmode", "true");
-    }
-
-    if (!WORDS.includes(word) && word !== "noxxx") {
+    if (config.validateGuesses && !config.words.includes(word)) {
       rejectGuess("Not in word list");
       return;
     }
@@ -236,7 +233,7 @@ export function useGame() {
     setGuess((prev) => [...prev, word]);
     setBoxes((prev) => [...prev, currentBoxes]);
     setWord("");
-  }, [word, answer, currentRow, guess, gameWon, gameLost, rejectGuess]);
+  }, [word, answer, currentRow, gameWon, gameLost, rejectGuess, config]);
 
   const enterWord = useCallback(
     (key: string) => {
@@ -252,14 +249,31 @@ export function useGame() {
         } else {
           rejectGuess("Not enough letters");
         }
-      } else if (/^[a-zA-Z]$/.test(key)) {
+      } else if (config.letterPattern.test(key)) {
         if (word.length < 5) {
           setWord((prev) => prev + key.toLowerCase());
         }
       }
     },
-    [wonGame, lostGame, word, checkAnswer, rejectGuess]
+    [wonGame, lostGame, word, checkAnswer, rejectGuess, config.letterPattern]
   );
+
+  /** Practice modes: reset the board and pick a fresh word */
+  const newGame = useCallback(() => {
+    if (config.daily) return;
+    setWord("");
+    setGuess([]);
+    setBoxes([]);
+    setCurrentRow(0);
+    setWonGame(false);
+    setLostGame(false);
+    setCellColor([]);
+    setShowDialog(false);
+    setJustSubmittedRow(null);
+    setShakeNonce(0);
+    setGameStart(new Date());
+    setAnswer(randomWord(config.words));
+  }, [config]);
 
   const shareWin = useCallback(() => {
     const shareableEmojis = boxes.flat().map((c) => {
@@ -268,34 +282,44 @@ export function useGame() {
       return "⬛";
     });
 
-    const dPlusX = Math.floor(
-      (new Date().getTime() - new Date(2022, 1, 22).getTime()) /
-        (1000 * 3600 * 24)
-    );
-
     const rows = [];
     for (let i = 0; i < shareableEmojis.length; i += 5) {
       rows.push(shareableEmojis.slice(i, i + 5).join(""));
     }
 
     const score = wonGame ? currentRow : "X";
-    return `Fauxdle #${dPlusX} | ${score}/6\n${rows.join("\n")}`;
-  }, [boxes, currentRow, wonGame]);
+    let header = `${config.shareTag} | ${score}/6`;
+    if (config.daily) {
+      const dPlusX = Math.floor(
+        (new Date().getTime() - new Date(2022, 1, 22).getTime()) /
+          (1000 * 3600 * 24)
+      );
+      header = `${config.shareTag} #${dPlusX} | ${score}/6`;
+    }
+    return `${header}\n${rows.join("\n")}`;
+  }, [boxes, currentRow, wonGame, config]);
 
   const handleShare = useCallback(() => {
     const text = shareWin();
     if (navigator.share) {
       navigator.share({
-        title: "Fauxdle",
+        title: config.shareTag,
         text,
       });
     } else {
       navigator.clipboard.writeText(text);
       toast("Copied to clipboard");
     }
-  }, [shareWin]);
+  }, [shareWin, config.shareTag]);
+
+  // Lesson entry for the current answer, if this mode has vocabulary data
+  const lessonEntry = useMemo(
+    () => config.lesson?.[answer],
+    [config.lesson, answer]
+  );
 
   return {
+    config,
     word,
     guess,
     boxes,
@@ -304,6 +328,7 @@ export function useGame() {
     lostGame,
     cellColor,
     answer,
+    lessonEntry,
     userStats,
     showDialog,
     dialogTitle,
@@ -313,6 +338,7 @@ export function useGame() {
     shakeNonce,
     enterWord,
     handleShare,
+    newGame,
     setShowDialog,
   };
 }

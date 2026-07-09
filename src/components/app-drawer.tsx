@@ -12,30 +12,33 @@ import { Button } from "@/components/ui/button";
 import { APPS } from "@/lib/apps";
 import { cn } from "@/lib/utils";
 import { LayoutGrid } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export function AppDrawer() {
+  // Normalize trailing slashes so "/arabic" and "/arabic/" match
+  const pathname = usePathname().replace(/\/+$/, "") || "/";
+
   return (
     <Sheet>
       <SheetTrigger
-        render={
-          <Button variant="ghost" size="icon" aria-label="More games" />
-        }
+        render={<Button variant="ghost" size="icon" aria-label="More games" />}
       >
         <LayoutGrid className="h-5 w-5" />
       </SheetTrigger>
       <SheetContent side="left" className="p-0">
         <SheetHeader className="border-b px-4 py-4">
           <SheetTitle className="text-xl font-extrabold tracking-wide">
-            More games
+            The Word Shelf
           </SheetTitle>
           <SheetDescription>
-            Fauxdle and friends — new games land here.
+            Daily puzzles, endless practice, and Arabic lessons.
           </SheetDescription>
         </SheetHeader>
         <nav className="flex flex-col gap-1 px-2">
           {APPS.map((app) => {
             const Icon = app.icon;
             const isLive = app.status === "live";
+            const isCurrent = isLive && pathname === app.href;
             const row = (
               <>
                 <span
@@ -54,16 +57,18 @@ export function AppDrawer() {
                     {app.tagline}
                   </span>
                 </span>
-                <span
-                  className={cn(
-                    "ml-auto rounded-full px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide",
-                    isLive
-                      ? "bg-teal-600/15 text-teal-600 dark:text-teal-400"
-                      : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  {isLive ? "Playing" : "Soon"}
-                </span>
+                {(isCurrent || !isLive) && (
+                  <span
+                    className={cn(
+                      "ml-auto rounded-full px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide",
+                      isCurrent
+                        ? "bg-teal-600/15 text-teal-600 dark:text-teal-400"
+                        : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {isCurrent ? "Playing" : "Soon"}
+                  </span>
+                )}
               </>
             );
 
@@ -71,7 +76,10 @@ export function AppDrawer() {
               <a
                 key={app.id}
                 href={app.href}
-                className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-muted"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-muted",
+                  isCurrent && "bg-muted/60"
+                )}
               >
                 {row}
               </a>

@@ -50,7 +50,10 @@ export function Key({ letter, onClick, cellColor }: KeyProps) {
         "h-[clamp(2.75rem,6.5dvh,3.5rem)]",
         isSpecialKey
           ? "flex-[1.5] text-[0.65rem] tracking-widest"
-          : "flex-1 text-sm sm:text-base",
+          : /[a-z]/.test(letter)
+            ? "flex-1 text-sm sm:text-base"
+            : "flex-1 text-base sm:text-lg", // Arabic glyphs need a bit more size
+
         keyColor
       )}
     >

@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
 
 interface HeaderProps {
+  badge?: string;
   onHelpClick: () => void;
   onStatsClick: () => void;
 }
@@ -16,7 +17,7 @@ const emptySubscribe = () => () => {};
 
 const LOGO = ["f", "a", "u", "x", "d", "l", "e"] as const;
 
-export function Header({ onHelpClick, onStatsClick }: HeaderProps) {
+export function Header({ badge, onHelpClick, onStatsClick }: HeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
 
   // Avoid hydration mismatch: false on the server, true after client mount
@@ -40,16 +41,23 @@ export function Header({ onHelpClick, onStatsClick }: HeaderProps) {
         </Button>
       </div>
 
-      <h1 aria-label="Fauxdle" className="flex gap-1">
-        {LOGO.map((letter, i) => (
-          <Tile
-            key={i}
-            letter={letter}
-            size="xs"
-            tone={letter === "x" ? "accent" : "empty"}
-          />
-        ))}
-      </h1>
+      <div className="flex flex-col items-center gap-0.5">
+        <h1 aria-label="Fauxdle" className="flex gap-1">
+          {LOGO.map((letter, i) => (
+            <Tile
+              key={i}
+              letter={letter}
+              size="xs"
+              tone={letter === "x" ? "accent" : "empty"}
+            />
+          ))}
+        </h1>
+        {badge && (
+          <span className="text-[0.6rem] font-semibold tracking-widest text-teal-600 uppercase dark:text-teal-400">
+            {badge}
+          </span>
+        )}
+      </div>
 
       <div className="flex gap-1">
         <Button
