@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { CellColor } from "@/hooks/use-game";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 interface CellProps {
   letter: string;
@@ -19,23 +19,24 @@ export function Cell({
   animate,
   animationDelay,
 }: CellProps) {
-  const [showColor, setShowColor] = useState(!animate && !!color);
-  const prevAnimateRef = useRef(animate);
+  const [revealed, setRevealed] = useState(!animate);
+  const [prevAnimate, setPrevAnimate] = useState(animate);
 
-  // Reset showColor when animate changes from false to true (new row submitted)
+  // Hide the color when a flip animation starts, show it when animation ends
+  if (animate !== prevAnimate) {
+    setPrevAnimate(animate);
+    setRevealed(!animate);
+  }
+
+  // Reveal the color partway through the flip animation
   useEffect(() => {
-    if (animate && !prevAnimateRef.current) {
-      // Animation just started
-      setShowColor(false);
-      const delayMs = animationDelay * 200 + 250;
-      const timer = setTimeout(() => setShowColor(true), delayMs);
-      return () => clearTimeout(timer);
-    } else if (!animate && color) {
-      // Already revealed (e.g., on page load or after animation completed)
-      setShowColor(true);
-    }
-    prevAnimateRef.current = animate;
-  }, [animate, color, animationDelay]);
+    if (!animate) return;
+    const delayMs = animationDelay * 200 + 250;
+    const timer = setTimeout(() => setRevealed(true), delayMs);
+    return () => clearTimeout(timer);
+  }, [animate, animationDelay]);
+
+  const showColor = revealed && !!color;
 
   const getBackgroundColor = () => {
     if (isCurrentRow || !showColor) return "";
@@ -54,10 +55,12 @@ export function Cell({
   return (
     <div
       className={cn(
-        "w-14 h-14 sm:w-16 sm:h-16 border-2 border-zinc-400 dark:border-zinc-600",
+        // Sized against the dynamic viewport so board + keyboard always fit on screen
+        "size-[clamp(2.5rem,7.5dvh,4rem)]",
+        "rounded-sm border-2 border-zinc-300 dark:border-zinc-700",
         "flex items-center justify-center",
-        "text-3xl sm:text-4xl font-extrabold uppercase",
-        "text-foreground",
+        "text-[clamp(1.375rem,3.4dvh,2.25rem)] font-extrabold uppercase",
+        "text-foreground transition-colors duration-150",
         getBackgroundColor(),
         showColor && "text-white",
         animate && "animate-flip",
@@ -67,7 +70,11 @@ export function Cell({
         animationDelay: animate ? `${animationDelay * 0.2}s` : undefined,
       }}
     >
-      {letter}
+      {letter ? (
+        <span key={letter} className={isCurrentRow ? "animate-pop" : undefined}>
+          {letter}
+        </span>
+      ) : null}
     </div>
   );
 }

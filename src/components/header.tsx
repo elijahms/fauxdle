@@ -2,36 +2,53 @@
 
 import { HelpCircle, BarChart2, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tile } from "@/components/game/tile";
+import { AppDrawer } from "@/components/app-drawer";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 interface HeaderProps {
   onHelpClick: () => void;
   onStatsClick: () => void;
 }
 
+const emptySubscribe = () => () => {};
+
+const LOGO = ["f", "a", "u", "x", "d", "l", "e"] as const;
+
 export function Header({ onHelpClick, onStatsClick }: HeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
 
-  // Avoid hydration mismatch by waiting for client mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // Avoid hydration mismatch: false on the server, true after client mount
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   return (
-    <header className="flex items-center justify-between py-4 px-2 border-b border-border mb-4">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onHelpClick}
-        aria-label="Help"
-      >
-        <HelpCircle className="h-6 w-6" />
-      </Button>
+    <header className="mb-2 flex items-center justify-between border-b border-border px-1 py-3 sm:mb-4">
+      <div className="flex gap-1">
+        <AppDrawer />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onHelpClick}
+          aria-label="How to play"
+        >
+          <HelpCircle className="h-5 w-5" />
+        </Button>
+      </div>
 
-      <h1 className="text-3xl sm:text-4xl font-extrabold tracking-wider">
-        FAUXDLE
+      <h1 aria-label="Fauxdle" className="flex gap-1">
+        {LOGO.map((letter, i) => (
+          <Tile
+            key={i}
+            letter={letter}
+            size="xs"
+            tone={letter === "x" ? "accent" : "empty"}
+          />
+        ))}
       </h1>
 
       <div className="flex gap-1">
@@ -57,7 +74,7 @@ export function Header({ onHelpClick, onStatsClick }: HeaderProps) {
           onClick={onStatsClick}
           aria-label="Statistics"
         >
-          <BarChart2 className="h-6 w-6" />
+          <BarChart2 className="h-5 w-5" />
         </Button>
       </div>
     </header>

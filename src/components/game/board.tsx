@@ -2,17 +2,27 @@
 
 import { Cell } from "./cell";
 import { CellColor } from "@/hooks/use-game";
+import { cn } from "@/lib/utils";
 
 interface BoardProps {
   guess: string[];
   boxes: CellColor[][];
   currentRow: number;
   currentWord: string;
+  justSubmittedRow: number | null;
+  shakeNonce: number;
 }
 
-export function Board({ guess, boxes, currentRow, currentWord }: BoardProps) {
+export function Board({
+  guess,
+  boxes,
+  currentRow,
+  currentWord,
+  justSubmittedRow,
+  shakeNonce,
+}: BoardProps) {
   return (
-    <div className="flex flex-col gap-1.5 items-center">
+    <div className="flex flex-col items-center gap-1.5">
       {[...Array(6)].map((_, rowIndex) => {
         const isCurrentRow = rowIndex === currentRow;
         const isPastRow = rowIndex < currentRow;
@@ -20,7 +30,14 @@ export function Board({ guess, boxes, currentRow, currentWord }: BoardProps) {
         const rowBoxes = boxes[rowIndex] || [];
 
         return (
-          <div key={rowIndex} className="flex gap-1.5">
+          <div
+            // Remounting on each rejection restarts the shake animation
+            key={isCurrentRow ? `${rowIndex}-${shakeNonce}` : rowIndex}
+            className={cn(
+              "flex gap-1.5",
+              isCurrentRow && shakeNonce > 0 && "animate-shake"
+            )}
+          >
             {[...Array(5)].map((_, cellIndex) => {
               let letter = "";
               let color: CellColor = "";
@@ -38,7 +55,7 @@ export function Board({ guess, boxes, currentRow, currentWord }: BoardProps) {
                   letter={letter}
                   color={color}
                   isCurrentRow={isCurrentRow}
-                  animate={isPastRow && rowIndex === currentRow - 1}
+                  animate={rowIndex === justSubmittedRow}
                   animationDelay={cellIndex}
                 />
               );

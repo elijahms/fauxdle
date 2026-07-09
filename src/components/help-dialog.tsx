@@ -6,57 +6,63 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tile, TileTone } from "@/components/game/tile";
 
 interface HelpDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+const LEGEND: { letter: string; tone: TileTone; text: string }[] = [
+  { letter: "g", tone: "green", text: "Right letter, right spot" },
+  { letter: "o", tone: "orange", text: "Right letter, wrong spot" },
+  { letter: "x", tone: "gray", text: "Not in the word" },
+];
+
 export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Fauxdle</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">How to play</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 text-muted-foreground">
           <p>
-            Literally the same* rules as{" "}
+            Guess the 5-letter word in 6 tries. Literally the same* rules as{" "}
             <a
               href="https://www.nytimes.com/games/wordle/index.html"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-teal-500 hover:text-teal-400 underline"
+              className="text-teal-500 underline hover:text-teal-400"
             >
               Wordle
             </a>
-            .
+            . After each guess, the tiles show how close you are:
           </p>
-          
-          <div className="space-y-2">
-            <p className="font-semibold text-foreground">How to play:</p>
-            <ul className="list-disc list-inside space-y-1 text-sm">
-              <li>Guess the word in 6 tries</li>
-              <li><span className="text-green-500 font-semibold">Green</span> = correct letter, correct position</li>
-              <li><span className="text-orange-500 font-semibold">Orange</span> = correct letter, wrong position</li>
-              <li><span className="text-zinc-500 font-semibold">Gray</span> = letter not in word</li>
-            </ul>
-          </div>
+
+          <ul className="space-y-2">
+            {LEGEND.map(({ letter, tone, text }) => (
+              <li key={tone} className="flex items-center gap-3">
+                <Tile letter={letter} tone={tone} size="sm" />
+                <span className="text-sm text-foreground">{text}</span>
+              </li>
+            ))}
+          </ul>
 
           <p className="text-xs">
-            *If a user types a guess with two letters such as &apos;GRILL&apos; and the
-            correct answer is &apos;LINEN&apos;, both the &apos;L&apos;s will appear orange unlike
-            in Wordle.
+            *If a guess repeats a letter, like the two L&apos;s in
+            &apos;GRILL&apos; when the answer is &apos;LINEN&apos;, both show
+            orange — unlike in Wordle.
           </p>
 
-          <div className="pt-2 border-t border-border">
+          <div className="border-t border-border pt-2">
             <p className="text-sm">
               Created by{" "}
               <a
                 href="https://elijahsilverman.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-teal-500 hover:text-teal-400 underline"
+                className="text-teal-500 underline hover:text-teal-400"
               >
                 Elijah Silverman
               </a>

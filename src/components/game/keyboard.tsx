@@ -1,40 +1,31 @@
 "use client";
 
 import { Key } from "./key";
-import { CellColor } from "@/hooks/use-game";
-import { useEffect, useCallback, useState, useRef } from "react";
+import { CellColor, REVEAL_DURATION_MS } from "@/hooks/use-game";
+import { useEffect, useCallback, useState } from "react";
 
 interface KeyboardProps {
   onKeyPress: (key: string) => void;
   cellColor: [string, CellColor][][];
+  /** True once a guess has been submitted this session — delays key colors until the flip finishes */
+  delayReveal: boolean;
 }
 
-const FIRST_ROW = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"];
-const SECOND_ROW = ["a", "s", "d", "f", "g", "h", "j", "k", "l"];
-const THIRD_ROW = ["ENT", "z", "x", "c", "v", "b", "n", "m", "⬅"];
+const ROWS = [
+  ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+  ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+  ["ENT", "z", "x", "c", "v", "b", "n", "m", "⬅"],
+];
 
-// Total animation time: 5 cells * 200ms delay each + 500ms flip duration
-const ANIMATION_COMPLETE_DELAY = 1200;
-
-export function Keyboard({ onKeyPress, cellColor }: KeyboardProps) {
-  // Delay keyboard color updates until cell animations complete
+export function Keyboard({ onKeyPress, cellColor, delayReveal }: KeyboardProps) {
+  // Key colors update after the cell flip completes (or instantly on restore)
   const [displayedCellColor, setDisplayedCellColor] = useState(cellColor);
-  const prevLengthRef = useRef(cellColor.length);
 
   useEffect(() => {
-    if (cellColor.length > prevLengthRef.current) {
-      // New row was added - delay the update
-      const timer = setTimeout(() => {
-        setDisplayedCellColor(cellColor);
-      }, ANIMATION_COMPLETE_DELAY);
-      prevLengthRef.current = cellColor.length;
-      return () => clearTimeout(timer);
-    } else {
-      // Initial load or same length - update immediately
-      setDisplayedCellColor(cellColor);
-      prevLengthRef.current = cellColor.length;
-    }
-  }, [cellColor]);
+    const delay = delayReveal ? REVEAL_DURATION_MS : 0;
+    const timer = setTimeout(() => setDisplayedCellColor(cellColor), delay);
+    return () => clearTimeout(timer);
+  }, [cellColor, delayReveal]);
 
   // Handle physical keyboard input
   const handleKeyDown = useCallback(
@@ -56,42 +47,22 @@ export function Keyboard({ onKeyPress, cellColor }: KeyboardProps) {
   }, [handleKeyDown]);
 
   return (
-    <div className="w-full max-w-lg mx-auto px-1 sm:px-2">
-      {/* First row */}
-      <div className="flex justify-center gap-1 sm:gap-1.5 mb-1.5">
-        {FIRST_ROW.map((letter) => (
-          <Key
-            key={letter}
-            letter={letter}
-            onClick={onKeyPress}
-            cellColor={displayedCellColor}
-          />
-        ))}
-      </div>
-
-      {/* Second row */}
-      <div className="flex justify-center gap-1 sm:gap-1.5 mb-1.5">
-        {SECOND_ROW.map((letter) => (
-          <Key
-            key={letter}
-            letter={letter}
-            onClick={onKeyPress}
-            cellColor={displayedCellColor}
-          />
-        ))}
-      </div>
-
-      {/* Third row */}
-      <div className="flex justify-center gap-1 sm:gap-1.5">
-        {THIRD_ROW.map((letter) => (
-          <Key
-            key={letter}
-            letter={letter}
-            onClick={onKeyPress}
-            cellColor={displayedCellColor}
-          />
-        ))}
-      </div>
+    <div className="mx-auto flex w-full max-w-lg flex-col gap-1.5 px-1 sm:px-2">
+      {ROWS.map((row, i) => (
+        <div
+          key={i}
+          className={i === 1 ? "flex gap-1 px-[4.5%] sm:gap-1.5" : "flex gap-1 sm:gap-1.5"}
+        >
+          {row.map((letter) => (
+            <Key
+              key={letter}
+              letter={letter}
+              onClick={onKeyPress}
+              cellColor={displayedCellColor}
+            />
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
