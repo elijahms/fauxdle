@@ -42,21 +42,17 @@ export function isSpeechSupported(): boolean {
   return typeof window !== "undefined" && "speechSynthesis" in window;
 }
 
-/** Pick the best available Arabic voice; retries once voices finish loading. */
+function refreshVoice(): void {
+  const voices = window.speechSynthesis.getVoices();
+  arabicVoice =
+    voices.find((v) => v.lang.toLowerCase().startsWith("ar")) ?? null;
+}
+
+/** Pick the best available Arabic voice; re-checks as voices load (late on iOS). */
 export function primeArabicVoice(): void {
   if (!isSpeechSupported()) return;
-  const pick = () => {
-    const voices = window.speechSynthesis.getVoices();
-    arabicVoice =
-      voices.find((v) => v.lang.toLowerCase().startsWith("ar")) ?? null;
-  };
-  pick();
-  if (!arabicVoice) {
-    // Voices load asynchronously in most browsers
-    window.speechSynthesis.addEventListener("voiceschanged", pick, {
-      once: true,
-    });
-  }
+  refreshVoice();
+  window.speechSynthesis.addEventListener("voiceschanged", refreshVoice);
 }
 
 /** Speak a single Arabic letter's name. No-ops for Enter/Backspace or non-letters. */
@@ -66,12 +62,25 @@ export function speakArabicLetter(letter: string): void {
   if (!name) return;
 
   const synth = window.speechSynthesis;
-  // Cancel any pending utterance so fast typing stays responsive
-  synth.cancel();
+
+  // iOS Safari populates voices late — grab one now if priming missed it
+  if (!arabicVoice) refreshVoice();
+
+  // iOS can leave synthesis in a paused state between utterances
+  if (synth.paused) synth.resume();
 
   const utterance = new SpeechSynthesisUtterance(name);
-  utterance.lang = arabicVoice?.lang ?? "ar-SA";
-  if (arabicVoice) utterance.voice = arabicVoice;
+  if (arabicVoice) {
+    utterance.voice = arabicVoice;
+    utterance.lang = arabicVoice.lang;
+  } else {
+    utterance.lang = "ar-SA";
+  }
   utterance.rate = 0.9;
+
+  // Deliberately no synth.cancel() before speak(): on iOS Safari, cancelling
+  // and speaking within the same gesture drops the new utterance and nothing
+  // plays. Letter names are short, so letting them queue is fine — it even
+  // spells the word out as you type.
   synth.speak(utterance);
 }
