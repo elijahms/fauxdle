@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useGame } from "@/hooks/use-game";
 import { GameConfigId } from "@/lib/game-configs";
+import {
+  isSpeechSupported,
+  primeArabicVoice,
+  speakArabicLetter,
+} from "@/lib/arabic-audio";
 import { Board } from "@/components/game/board";
 import { Keyboard } from "@/components/game/keyboard";
 import { Tile } from "@/components/game/tile";
@@ -49,6 +54,34 @@ export function GameScreen({ configId, className }: GameScreenProps) {
   const [hintShownFor, setHintShownFor] = useState<string | null>(null);
   const hintShown = hintShownFor === answer;
 
+  // Letter audio (Arabic practice): load the voice and any saved mute preference
+  const [soundMuted, setSoundMuted] = useState(false);
+  const mutedKey = `${config.storagePrefix}muted`;
+
+  useEffect(() => {
+    if (!config.speakLetters) return;
+    primeArabicVoice();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading the saved preference must run post-hydration to stay SSR-safe
+    if (localStorage.getItem(mutedKey) === "true") setSoundMuted(true);
+  }, [config.speakLetters, mutedKey]);
+
+  const toggleSound = useCallback(() => {
+    setSoundMuted((prev) => {
+      const next = !prev;
+      localStorage.setItem(mutedKey, String(next));
+      if (next && isSpeechSupported()) window.speechSynthesis.cancel();
+      return next;
+    });
+  }, [mutedKey]);
+
+  const handleKeyPress = useCallback(
+    (key: string) => {
+      if (config.speakLetters && !soundMuted) speakArabicLetter(key);
+      enterWord(key);
+    },
+    [config.speakLetters, soundMuted, enterWord]
+  );
+
   if (!isInitialized) {
     return (
       <main className={cn("flex h-dvh items-center justify-center", className)}>
@@ -75,6 +108,8 @@ export function GameScreen({ configId, className }: GameScreenProps) {
     >
       <Header
         badge={config.badge}
+        soundOn={config.speakLetters ? !soundMuted : undefined}
+        onToggleSound={config.speakLetters ? toggleSound : undefined}
         onHelpClick={() => setShowHelp(true)}
         onStatsClick={() => setShowStats(true)}
       />
@@ -112,7 +147,7 @@ export function GameScreen({ configId, className }: GameScreenProps) {
 
       <div className="pb-[max(env(safe-area-inset-bottom),0.5rem)] sm:pb-4">
         <Keyboard
-          onKeyPress={enterWord}
+          onKeyPress={handleKeyPress}
           cellColor={cellColor}
           delayReveal={justSubmittedRow !== null}
           rows={config.keyboardRows}

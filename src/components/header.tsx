@@ -1,6 +1,13 @@
 "use client";
 
-import { HelpCircle, BarChart2, Sun, Moon } from "lucide-react";
+import {
+  HelpCircle,
+  BarChart2,
+  Sun,
+  Moon,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tile } from "@/components/game/tile";
 import { AppDrawer } from "@/components/app-drawer";
@@ -9,6 +16,9 @@ import { useSyncExternalStore } from "react";
 
 interface HeaderProps {
   badge?: string;
+  /** When defined, renders a mute toggle (letter-audio modes) */
+  soundOn?: boolean;
+  onToggleSound?: () => void;
   onHelpClick: () => void;
   onStatsClick: () => void;
 }
@@ -17,7 +27,13 @@ const emptySubscribe = () => () => {};
 
 const LOGO = ["f", "a", "u", "x", "d", "l", "e"] as const;
 
-export function Header({ badge, onHelpClick, onStatsClick }: HeaderProps) {
+export function Header({
+  badge,
+  soundOn,
+  onToggleSound,
+  onHelpClick,
+  onStatsClick,
+}: HeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
 
   // Avoid hydration mismatch: false on the server, true after client mount
@@ -60,6 +76,21 @@ export function Header({ badge, onHelpClick, onStatsClick }: HeaderProps) {
       </div>
 
       <div className="flex gap-1">
+        {onToggleSound && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleSound}
+            aria-label={soundOn ? "Mute letter sounds" : "Unmute letter sounds"}
+            aria-pressed={!soundOn}
+          >
+            {soundOn ? (
+              <Volume2 className="h-5 w-5" />
+            ) : (
+              <VolumeX className="h-5 w-5 text-muted-foreground" />
+            )}
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="icon"

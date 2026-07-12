@@ -18,6 +18,8 @@ export interface GameConfig {
   shareTag: string;
   /** Small label shown under the header logo */
   badge?: string;
+  /** Speak each letter aloud as it's typed (language-practice modes) */
+  speakLetters?: boolean;
   /** Vocabulary details keyed by word — presence turns on lesson features */
   lesson?: Record<string, ArabicWord>;
 }
@@ -75,6 +77,7 @@ export const GAME_CONFIGS: Record<GameConfigId, GameConfig> = {
     storagePrefix: "arabic-",
     shareTag: "Fauxdle عربي",
     badge: "عربي · Arabic practice",
+    speakLetters: true,
     lesson: ARABIC_LESSON,
   },
 };
