@@ -3,6 +3,7 @@
 import {
   HelpCircle,
   BarChart2,
+  BookOpen,
   Sun,
   Moon,
   Volume2,
@@ -21,6 +22,7 @@ interface HeaderProps {
   onToggleSound?: () => void;
   onHelpClick: () => void;
   onStatsClick: () => void;
+  onVocabularyClick: () => void;
 }
 
 const emptySubscribe = () => () => {};
@@ -33,6 +35,7 @@ export function Header({
   onToggleSound,
   onHelpClick,
   onStatsClick,
+  onVocabularyClick,
 }: HeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
 
@@ -106,6 +109,14 @@ export function Header({
           ) : (
             <div className="h-5 w-5" /> // Placeholder to prevent layout shift
           )}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onVocabularyClick}
+          aria-label="Words you've solved"
+        >
+          <BookOpen className="h-5 w-5" />
         </Button>
         <Button
           variant="ghost"

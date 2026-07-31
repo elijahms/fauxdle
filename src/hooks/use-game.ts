@@ -16,8 +16,22 @@ export interface UserStats {
   gamesPlayed: number;
 }
 
+/** A word the player has solved, kept for vocabulary review */
+export interface SolvedWordEntry {
+  word: string;
+  /** Absent for calendar-archive seeds (guess count unknown) */
+  guesses?: number;
+  date: string; // ISO
+}
+
 // Matches the cell flip: 5 cells staggered 200ms + 500ms flip
 export const REVEAL_DURATION_MS = 1300;
+
+/** Cap history so unlimited English doesn't grow without bound */
+const MAX_SOLVED_WORDS = 200;
+
+/** One-time backfill of recent calendar answers when vocab tracking launches */
+const ARCHIVE_SEED_DAYS = 10;
 
 const dayOfYear = (date: Date): number =>
   Math.floor(
@@ -27,6 +41,25 @@ const dayOfYear = (date: Date): number =>
       60 /
       24
   );
+
+/** Previous N days' answers for a word list (yesterday first, unique). */
+function archiveRecentAnswers(
+  words: string[],
+  days: number = ARCHIVE_SEED_DAYS
+): SolvedWordEntry[] {
+  const entries: SolvedWordEntry[] = [];
+  const seen = new Set<string>();
+  for (let i = 1; i <= days; i++) {
+    const d = new Date();
+    d.setHours(12, 0, 0, 0);
+    d.setDate(d.getDate() - i);
+    const w = words[dayOfYear(d) % words.length];
+    if (seen.has(w)) continue;
+    seen.add(w);
+    entries.push({ word: w, date: d.toISOString() });
+  }
+  return entries;
+}
 
 const initialStats: UserStats = {
   wins: 0,
@@ -42,6 +75,8 @@ const randomWord = (words: string[]) =>
 export function useGame(configId: GameConfigId = "daily") {
   const config = GAME_CONFIGS[configId];
   const statsKey = `${config.storagePrefix}stats`;
+  const solvedWordsKey = `${config.storagePrefix}solvedWords`;
+  const solvedWordsSeedKey = `${config.storagePrefix}solvedWordsSeeded`;
 
   const [word, setWord] = useState("");
   const [guess, setGuess] = useState<string[]>([]);
@@ -52,6 +87,7 @@ export function useGame(configId: GameConfigId = "daily") {
   const [cellColor, setCellColor] = useState<LetterColor[]>([]);
   const [answer, setAnswer] = useState("");
   const [userStats, setUserStats] = useState<UserStats>(initialStats);
+  const [solvedWords, setSolvedWords] = useState<SolvedWordEntry[]>([]);
   const [showDialog, setShowDialog] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("");
   const [dialogContent, setDialogContent] = useState("");
@@ -80,6 +116,12 @@ export function useGame(configId: GameConfigId = "daily") {
     if (!isInitialized) return;
     localStorage.setItem(statsKey, JSON.stringify(userStats));
   }, [userStats, isInitialized, statsKey]);
+
+  // Persist solved-word vocabulary history (all modes)
+  useEffect(() => {
+    if (!isInitialized) return;
+    localStorage.setItem(solvedWordsKey, JSON.stringify(solvedWords));
+  }, [solvedWords, isInitialized, solvedWordsKey]);
 
   // Initialize game state
   useEffect(() => {
@@ -141,6 +183,30 @@ export function useGame(configId: GameConfigId = "daily") {
       setUserStats(JSON.parse(savedStats));
     }
 
+    // Load solved-word history (and one-time seed last 10 calendar days)
+    let history: SolvedWordEntry[] = [];
+    const savedSolved = localStorage.getItem(solvedWordsKey);
+    if (savedSolved) {
+      try {
+        const parsed = JSON.parse(savedSolved) as SolvedWordEntry[];
+        if (Array.isArray(parsed)) history = parsed;
+      } catch {
+        // ignore corrupt history
+      }
+    }
+
+    if (localStorage.getItem(solvedWordsSeedKey) !== "true") {
+      const archive = archiveRecentAnswers(config.words);
+      const known = new Set(history.map((e) => e.word));
+      const toAdd = archive.filter((e) => !known.has(e.word));
+      history = [...history, ...toAdd].sort((a, b) =>
+        b.date.localeCompare(a.date)
+      );
+      localStorage.setItem(solvedWordsSeedKey, "true");
+    }
+
+    setSolvedWords(history);
+
     setGameStart(new Date());
     setIsInitialized(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- config values are constant per mounted route
@@ -172,10 +238,21 @@ export function useGame(configId: GameConfigId = "daily") {
         avgDuration: [...prev.avgDuration, timeFromStart],
       }));
 
+      // Remember the word for vocabulary review (unique, most recent first)
+      setSolvedWords((prev) => {
+        const entry: SolvedWordEntry = {
+          word: answer,
+          guesses: currRow,
+          date: now.toISOString(),
+        };
+        const without = prev.filter((e) => e.word !== answer);
+        return [entry, ...without].slice(0, MAX_SOLVED_WORDS);
+      });
+
       // Let the reveal flip finish before celebrating
       setTimeout(() => setShowDialog(true), REVEAL_DURATION_MS + 200);
     },
-    [gameStart, config.daily]
+    [gameStart, config.daily, answer]
   );
 
   const gameLost = useCallback(() => {
@@ -330,6 +407,7 @@ export function useGame(configId: GameConfigId = "daily") {
     answer,
     lessonEntry,
     userStats,
+    solvedWords,
     showDialog,
     dialogTitle,
     dialogContent,

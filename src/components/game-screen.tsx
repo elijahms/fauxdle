@@ -13,6 +13,7 @@ import { Keyboard } from "@/components/game/keyboard";
 import { Tile } from "@/components/game/tile";
 import { Header } from "@/components/header";
 import { StatsDialog } from "@/components/stats-dialog";
+import { VocabularyDialog } from "@/components/vocabulary-dialog";
 import { HelpDialog } from "@/components/help-dialog";
 import { GameDialog } from "@/components/game-dialog";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ export function GameScreen({ configId, className }: GameScreenProps) {
     answer,
     lessonEntry,
     userStats,
+    solvedWords,
     showDialog,
     dialogTitle,
     dialogContent,
@@ -50,6 +52,7 @@ export function GameScreen({ configId, className }: GameScreenProps) {
 
   const [showHelp, setShowHelp] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [showVocabulary, setShowVocabulary] = useState(false);
   // Hint is per-word: comparing against the answer resets it on a new game
   const [hintShownFor, setHintShownFor] = useState<string | null>(null);
   const hintShown = hintShownFor === answer;
@@ -112,6 +115,7 @@ export function GameScreen({ configId, className }: GameScreenProps) {
         onToggleSound={config.speakLetters ? toggleSound : undefined}
         onHelpClick={() => setShowHelp(true)}
         onStatsClick={() => setShowStats(true)}
+        onVocabularyClick={() => setShowVocabulary(true)}
       />
 
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 py-2">
@@ -162,6 +166,13 @@ export function GameScreen({ configId, className }: GameScreenProps) {
         onOpenChange={setShowStats}
         stats={userStats}
         onShare={handleShare}
+      />
+      <VocabularyDialog
+        open={showVocabulary}
+        onOpenChange={setShowVocabulary}
+        words={solvedWords}
+        dir={config.dir}
+        lesson={config.lesson}
       />
       <GameDialog
         open={showDialog}
